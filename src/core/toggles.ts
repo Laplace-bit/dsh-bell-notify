@@ -12,18 +12,18 @@ export interface ToggleEntry {
   defaultOn: boolean
 }
 
-/** 弹窗展示顺序即此数组顺序。 */
+/** 弹窗展示顺序即此数组顺序。默认只开「需要你行动 + 里程碑」三声，过程细节默认静默。 */
 export const TOGGLEABLE_EVENTS: readonly ToggleEntry[] = [
-  { event: EVENTS.sessionStart, label: '会话启动', defaultOn: true },
+  { event: EVENTS.sessionStart, label: '会话启动', defaultOn: false },
   { event: EVENTS.agentStart, label: '开始执行', defaultOn: true },
-  { event: EVENTS.agentThinking, label: '开始思考', defaultOn: true },
-  { event: EVENTS.toolStart, label: '工具调用', defaultOn: true },
+  { event: EVENTS.agentThinking, label: '开始思考', defaultOn: false },
+  { event: EVENTS.toolStart, label: '工具调用', defaultOn: false },
   { event: EVENTS.toolDone, label: '工具完成', defaultOn: false },
-  { event: EVENTS.commandStart, label: '命令执行', defaultOn: true },
+  { event: EVENTS.commandStart, label: '命令执行', defaultOn: false },
   { event: EVENTS.commandDone, label: '命令完成', defaultOn: false },
   { event: EVENTS.agentWaiting, label: '等待确认', defaultOn: true },
   { event: EVENTS.agentDone, label: '本轮完成', defaultOn: true },
-  { event: EVENTS.agentIdle, label: '回到空闲', defaultOn: true },
+  { event: EVENTS.agentIdle, label: '回到空闲', defaultOn: false },
 ]
 
 /** 最小存储接口（window.localStorage 与测试 fake 都满足）。 */

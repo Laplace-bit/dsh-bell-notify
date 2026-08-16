@@ -13,13 +13,19 @@ function fakeStorage(initial?: Record<string, string>): ToggleStorage & { data: 
 }
 
 describe('SoundToggles 默认种子', () => {
-  it('默认开启的事件默认 on，tool/command 完成默认 off', () => {
+  it('默认只开里程碑与需行动的事件，过程细节默认 off', () => {
     const toggles = new SoundToggles(null)
-    expect(toggles.isEnabled('tool:start')).toBe(true)
-    expect(toggles.isEnabled('command:start')).toBe(true)
-    expect(toggles.isEnabled('agent:thinking')).toBe(true)
+    expect(toggles.isEnabled('agent:start')).toBe(true)
+    expect(toggles.isEnabled('agent:done')).toBe(true)
+    expect(toggles.isEnabled('agent:waiting')).toBe(true)
+
+    expect(toggles.isEnabled('session:start')).toBe(false)
+    expect(toggles.isEnabled('agent:thinking')).toBe(false)
+    expect(toggles.isEnabled('tool:start')).toBe(false)
     expect(toggles.isEnabled('tool:done')).toBe(false)
+    expect(toggles.isEnabled('command:start')).toBe(false)
     expect(toggles.isEnabled('command:done')).toBe(false)
+    expect(toggles.isEnabled('agent:idle')).toBe(false)
   })
 
   it('未知事件默认视为开启（fail-open）', () => {
@@ -33,10 +39,10 @@ describe('SoundToggles set/isEnabled', () => {
     const toggles = new SoundToggles(null)
     const seen: number[] = []
     const off = toggles.subscribe(() => seen.push(1))
-    toggles.set('tool:start', false)
-    expect(toggles.isEnabled('tool:start')).toBe(false)
+    toggles.set('agent:start', false)
+    expect(toggles.isEnabled('agent:start')).toBe(false)
     off()
-    toggles.set('tool:start', true)
+    toggles.set('agent:start', true)
     expect(seen).toEqual([1])
   })
 
@@ -44,7 +50,7 @@ describe('SoundToggles set/isEnabled', () => {
     const toggles = new SoundToggles(null)
     const fn = vi.fn()
     toggles.subscribe(fn)
-    toggles.set('tool:start', true) // 默认已 true
+    toggles.set('agent:start', true) // 默认已 true
     expect(fn).not.toHaveBeenCalled()
   })
 })
@@ -62,24 +68,24 @@ describe('SoundToggles 持久化', () => {
 
   it('构造时从 storage 读回并覆盖默认', () => {
     const storage = fakeStorage({
-      'dsh.bell-notify.sound-toggles': JSON.stringify({ 'tool:done': true, 'tool:start': false }),
+      'dsh.bell-notify.sound-toggles': JSON.stringify({ 'tool:done': true, 'agent:start': false }),
     })
     const toggles = new SoundToggles(storage)
     expect(toggles.isEnabled('tool:done')).toBe(true)
-    expect(toggles.isEnabled('tool:start')).toBe(false)
+    expect(toggles.isEnabled('agent:start')).toBe(false)
   })
 
   it('损坏数据静默回退默认种子', () => {
     const storage = fakeStorage({ 'dsh.bell-notify.sound-toggles': 'not-json' })
     const toggles = new SoundToggles(storage)
     expect(toggles.isEnabled('tool:done')).toBe(false) // 默认 off 未受影响
-    expect(toggles.isEnabled('tool:start')).toBe(true)
+    expect(toggles.isEnabled('agent:start')).toBe(true)
   })
 
   it('storage 为 null 时（SSR）只读默认、set 不抛错', () => {
     const toggles = new SoundToggles(null)
-    expect(() => toggles.set('tool:start', false)).not.toThrow()
-    expect(toggles.isEnabled('tool:start')).toBe(false)
+    expect(() => toggles.set('agent:start', false)).not.toThrow()
+    expect(toggles.isEnabled('agent:start')).toBe(false)
   })
 
   it('getItem 抛错时静默回退默认', () => {
@@ -112,7 +118,7 @@ describe('SoundToggles 持久化', () => {
     const fn = vi.fn()
     toggles.subscribe(fn)
     toggles.dispose()
-    toggles.set('tool:start', false)
+    toggles.set('agent:start', false)
     expect(fn).not.toHaveBeenCalled()
   })
 })
