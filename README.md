@@ -126,7 +126,7 @@ pnpm test           # 单元测试
 pnpm typecheck
 ```
 
-想快速试听所有内置铃声？直接打开 [preview.html](preview.html)，一个页面点完所有音色。
+想快速试听所有内置铃声？直接打开 [preview.html](preview.html)，或访问[项目主页](https://laplace-bit.github.io/dsh-bell-notify/)在线试听全部铃声。
 
 ## 常见问题
 

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dsh-bell-notify 🔔 — Lifecycle bells & status for DeepSeek Harness | Web Audio synthesis</title>
+
+  <!-- SEO -->
+  <meta name="description" content="dsh-bell-notify is a community plugin for DeepSeek Harness (dsh): a distinct bell for every lifecycle event plus a breathing status dot. Zero audio files — all bells are synthesized in real time with the Web Audio API, and every event can be swapped for your own sound. MIT licensed." />
+  <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, notification, sound, Web Audio, lifecycle, cordis, deepseek plugin, status indicator" />
+  <meta name="author" content="Laplace-bit" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://laplace-bit.github.io/dsh-bell-notify/en.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="dsh-bell-notify" />
+  <meta property="og:title" content="dsh-bell-notify 🔔 — Lifecycle bells & status for DeepSeek Harness" />
+  <meta property="og:description" content="Customizable bell notifications for DeepSeek Harness: a distinct, swappable sound for every lifecycle event plus a breathing status dot. Zero audio files, real-time Web Audio synthesis, MIT licensed." />
+  <meta property="og:url" content="https://laplace-bit.github.io/dsh-bell-notify/en.html" />
+  <meta property="og:image" content="https://laplace-bit.github.io/dsh-bell-notify/screenshot.jpg" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="764" />
+  <meta property="og:image:alt" content="dsh-bell-notify running screenshot" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="dsh-bell-notify 🔔 — Lifecycle bells & status for DeepSeek Harness" />
+  <meta name="twitter:description" content="Customizable bell notifications for every lifecycle event + a breathing status dot. Real-time Web Audio, zero audio files, MIT licensed." />
+  <meta name="twitter:image" content="https://laplace-bit.github.io/dsh-bell-notify/screenshot.jpg" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "dsh-bell-notify",
+    "alternateName": "bell-notify",
+    "description": "Community plugin for DeepSeek Harness (dsh): lifecycle bells and status indicator for your agent. Zero audio files — all bells are synthesized in real time with the Web Audio API.",
+    "programmingLanguage": "TypeScript",
+    "codeRepository": "https://github.com/Laplace-bit/dsh-bell-notify",
+    "license": "https://github.com/Laplace-bit/dsh-bell-notify/blob/main/LICENSE",
+    "inLanguage": ["en-US", "zh-CN"],
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "keywords": "deepseek-harness, dsh, plugin, notification, sound, web-audio, cordis",
+    "isAccessibleForFree": true
+  }
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%94%3C/text%3E%3C/svg%3E" />
+
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --bg-2: #14171c;
+      --card: #161a20;
+      --border: #262c36;
+      --text: #e8e8e8;
+      --muted: #9aa3af;
+      --gold: #f5b942;
+      --orange: #e8893a;
+      --radius: 12px;
+      --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      font-family: var(--mono);
+      background: #20242b;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: .9em;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+    nav {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(13, 15, 18, .85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    nav .brand { font-weight: 700; color: var(--text); }
+    nav .brand span { color: var(--gold); }
+    nav .lang { font-size: 14px; }
+    nav .lang a { color: var(--muted); }
+    nav .lang a:hover { color: var(--text); text-decoration: none; }
+
+    header.hero { padding: 64px 0 40px; text-align: center; }
+    .kicker {
+      display: inline-block; font-size: 13px; letter-spacing: 1px;
+      color: var(--gold); border: 1px solid rgba(245, 185, 66, .4);
+      padding: 4px 14px; border-radius: 999px; margin-bottom: 18px;
+      background: rgba(245, 185, 66, .06);
+    }
+    h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.2; margin: 0 0 14px; }
+    .sub {
+      color: var(--muted); font-size: clamp(15px, 2.4vw, 18px);
+      max-width: 640px; margin: 0 auto 30px;
+    }
+    .sub b { color: var(--text); }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 12px 22px; border-radius: 10px;
+      font-size: 15px; font-weight: 600; border: 1px solid var(--border); color: var(--text);
+      background: var(--bg-2); transition: transform .12s, background .15s;
+    }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); background: #1c2129; }
+    .btn.primary { background: linear-gradient(135deg, var(--gold), var(--orange)); color: #171207; border-color: transparent; }
+    .btn.primary:hover { filter: brightness(1.08); }
+
+    section { padding: 44px 0; }
+    section h2 {
+      font-size: 24px; margin: 0 0 8px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    section h2::before { content: ""; width: 4px; height: 22px; border-radius: 2px; background: linear-gradient(var(--gold), var(--orange)); display: inline-block; }
+    .lead { color: var(--muted); margin: 0 0 24px; }
+
+    .shot-box { text-align: center; }
+    .shot-box img {
+      width: 100%; max-width: 900px; border-radius: 14px;
+      border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+      margin-bottom: 12px;
+    }
+    .shot-caption { color: var(--muted); font-size: 13px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 20px 22px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .dot-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 24px; }
+    .dot-item { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+    .dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--blue, #5aa2e6); position: relative;
+    }
+    .dot.pulse { animation: pulse 1.2s ease-out infinite; }
+    .dot.rhythm { background: var(--orange); animation: rhythm 1s ease-in-out infinite; }
+    .dot.blink { background: var(--yellow, #e6c35a); animation: blink 1s steps(2, start) infinite; }
+    .dot.ripple { background: var(--green, #5fc477); animation: ripple 1.4s ease-out infinite; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(90, 162, 230, .5); }
+      70% { box-shadow: 0 0 0 12px rgba(90, 162, 230, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(90, 162, 230, 0); }
+    }
+    @keyframes rhythm {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+    }
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: .2; }
+    }
+    @keyframes ripple {
+      0% { box-shadow: 0 0 0 0 rgba(95, 196, 119, .55); }
+      100% { box-shadow: 0 0 0 14px rgba(95, 196, 119, 0); }
+    }
+
+    .demo-tip {
+      background: rgba(90, 162, 230, .08); border: 1px solid rgba(90, 162, 230, .3);
+      color: #bcd4ee; padding: 10px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .demo-tip b { color: var(--text); }
+    .ring-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .ring-btn {
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--card); color: var(--text); font-size: 14px; text-align: left;
+      cursor: pointer; transition: border-color .15s, background .15s, transform .1s;
+      font-family: inherit;
+    }
+    .ring-btn:hover { border-color: var(--gold); background: #1b2027; }
+    .ring-btn:active { transform: scale(.97); }
+    .ring-btn:disabled { opacity: .45; cursor: default; }
+    .ring-btn .desc { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .demo-status { color: var(--gold); font-size: 13px; min-height: 20px; margin-top: 12px; }
+
+    pre {
+      background: #11151a; border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px;
+      margin: 12px 0; line-height: 1.6;
+    }
+    pre .cm { color: #5b6573; }
+    .note {
+      color: var(--muted); font-size: 13.5px; border-left: 3px solid var(--border);
+      padding-left: 12px; margin: 14px 0;
+    }
+
+    .tbl { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    .tbl th, .tbl td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .tbl th { color: var(--muted); font-weight: 600; font-size: 13px; }
+    .tbl td code { white-space: nowrap; }
+    .tbl td.desc { color: var(--muted); }
+
+    table.events { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    table.events th, table.events td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    table.events th { color: var(--muted); font-weight: 600; font-size: 13px; }
+    table.events td code { background: none; border: none; padding: 0; font-size: 13px; }
+    table.events .feels { color: var(--muted); }
+
+    details {
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin: 10px 0;
+      background: var(--card);
+    }
+    details summary { cursor: pointer; font-weight: 600; }
+    details p { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+
+    footer { border-top: 1px solid var(--border); margin-top: 20px; padding: 28px 0 40px; color: var(--muted); font-size: 13.5px; text-align: center; }
+
+    @media (max-width: 600px) {
+      header.hero { padding: 40px 0 28px; }
+      section { padding: 32px 0; }
+      h1 { font-size: 27px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="./">🔔 dsh-bell<span>-notify</span></a>
+    <div class="lang"><a href="./">中文</a></div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">Community plugin for DeepSeek Harness · MIT</span>
+    <h1>Customizable bell notifications for your Agent</h1>
+    <p class="sub">A distinct bell for every lifecycle event, plus a breathing status dot that tells you what your Agent is up to. No audio files — every bell is <b>synthesized in real time with the Web Audio API</b>, and each event can be swapped for your own sound.</p>
+    <div class="cta">
+      <a class="btn primary" href="#demo">▶ Hear every bell live</a>
+      <a class="btn" href="#install">Install the plugin</a>
+      <a class="btn" href="https://github.com/Laplace-bit/dsh-bell-notify" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</header>
+
+<section id="screenshot">
+  <div class="wrap shot-box">
+    <img src="./screenshot.jpg" alt="dsh-bell-notify — bells and status dot in the corner of a dsh session" width="1280" height="764" loading="lazy" />
+    <p class="shot-caption">In the corner: the breathing status dot. Every step: its own bell.</p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="lead">One small plugin, three small things: distinct bells, your own sounds, and a breathing status dot.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>🎵 A distinct bell for every step</h3>
+        <p>Startup, thinking, tool calls, command done, waiting on you… each event sounds different, so you can follow progress with your ears.</p>
+      </div>
+      <div class="card">
+        <h3>🎛️ Swap in your own sounds</h3>
+        <p>Click the little dot: preview, upload your own audio file, or reset to default. Your replacement sticks and survives reload.</p>
+      </div>
+      <div class="card">
+        <h3>🎼 Sounds that are "alive"</h3>
+        <p>All bells are synthesized on the fly — zero audio assets, a negligible footprint, fully offline, and pitch/rhythm tunable via config.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:44px">🔴 A status dot that "breathes"</h2>
+    <p class="lead">It doesn't interrupt, doesn't pop up, doesn't add text — it just quietly keeps you company.</p>
+    <div class="dot-row">
+      <div class="dot-item"><div class="dot pulse"></div>🔵 Blue pulse · thinking</div>
+      <div class="dot-item"><div class="dot rhythm"></div>🟠 Orange rhythm · working (tools/commands)</div>
+      <div class="dot-item"><div class="dot blink"></div>🟡 Yellow blink · waiting on you</div>
+      <div class="dot-item"><div class="dot ripple"></div>🟢 Green ripple · this turn ended nicely</div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <h2>🎧 Hear every bell live</h2>
+    <p class="lead">Same recipes and rendering logic as the plugin runtime (real-time Web Audio synthesis, no audio files). Volume 0.7, the default masterVolume.</p>
+    <div class="demo-tip">🔊 Click any bell once to unlock audio (browser autoplay policy).</div>
+    <div class="ring-grid" id="rings" data-recipes='{"startup":{"desc":"Session start · 300→900Hz upward sweep","n":[{"w":"sine","f":300,"t":900,"s":0,"d":0.35,"g":0.6}]},"click":{"desc":"Agent start · short 1200Hz ding","n":[{"w":"sine","f":1200,"s":0,"d":0.045,"g":0.5}]},"notify":{"desc":"Thinking · soft 392Hz single note","n":[{"w":"sine","f":392,"s":0,"d":0.28,"g":0.45}]},"tick":{"desc":"Tool call · metallic double tick","n":[{"w":"triangle","f":1600,"s":0,"d":0.03,"g":0.4},{"w":"triangle","f":2000,"s":0.045,"d":0.03,"g":0.4}]},"drop":{"desc":"Tool done · low settle","n":[{"w":"sine","f":440,"t":330,"s":0,"d":0.18,"g":0.5}]},"beep":{"desc":"Command run · short square beep","n":[{"w":"square","f":520,"s":0,"d":0.07,"g":0.35}]},"rise":{"desc":"Command done · rising two-note","n":[{"w":"sine","f":520,"s":0,"d":0.08,"g":0.5},{"w":"sine","f":780,"s":0.09,"d":0.12,"g":0.5}]},"alert":{"desc":"Waiting on you · high triple-chirp","n":[{"w":"sine","f":880,"s":0,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.12,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.24,"d":0.08,"g":0.6}]},"success":{"desc":"Turn complete · C-E-G major chord","n":[{"w":"sine","f":523.25,"s":0,"d":0.11,"g":0.6},{"w":"sine","f":659.25,"s":0.11,"d":0.11,"g":0.6},{"w":"sine","f":783.99,"s":0.22,"d":0.11,"g":0.6}]},"confirm":{"desc":"Back to idle · single note drifting down","n":[{"w":"sine","f":660,"t":440,"s":0,"d":0.22,"g":0.5}]},"error":{"desc":"Error (reserved) · 150Hz square","n":[{"w":"square","f":150,"s":0,"d":0.4,"g":0.5}]},"failure":{"desc":"Failure (reserved) · downward sweep","n":[{"w":"sine","f":400,"t":200,"s":0,"d":0.35,"g":0.6}]}}'></div>
+    <p class="demo-status" id="demo-status" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install</h2>
+    <p class="lead">From a DeepSeek Harness source checkout:</p>
+    <pre>pnpm dsh plugin --profile bell add <span class="cm">github:Laplace-bit/dsh-bell-notify</span></pre>
+    <p class="lead">If <code>dsh</code> is already on your <code>PATH</code>:</p>
+    <pre>dsh plugin --profile bell add <span class="cm">github:Laplace-bit/dsh-bell-notify</span></pre>
+    <p class="note">The first <code>add</code> is expected to fail: git install has to run the <code>prepare</code> script, and pnpm ≥10 blocks it until you allow it. Open <code>~/.dsh/profiles/bell/pnpm-workspace.yaml</code>, add the <code>onlyBuiltDependencies</code> snippet pnpm printed, then run the same <code>add</code> again.</p>
+    <p class="lead">Start it:</p>
+    <pre>pnpm dsh --profile bell</pre>
+    <p class="note">Open the page, <strong>click anywhere once</strong> (browser autoplay policy unlocks audio), then run any task — the sounds and the dot come alive together.</p>
+    <p class="lead">Remove it:</p>
+    <pre>pnpm dsh plugin --profile bell remove dsh-bell-notify</pre>
+  </div>
+</section>
+
+<section id="events">
+  <div class="wrap">
+    <h2>🎵 Default bell for every event</h2>
+    <p class="lead">Every move the Agent makes rings once, and each one sounds different. Try them all live above.</p>
+    <table class="events">
+      <thead><tr><th>Event</th><th>Default bell</th><th>Feels like</th></tr></thead>
+      <tbody>
+        <tr><td>Session start</td><td><code>startup</code></td><td class="feels">A soft upward sweep, like powering on</td></tr>
+        <tr><td>Agent start</td><td><code>click</code></td><td class="feels">A short "ding", we're off</td></tr>
+        <tr><td>Thinking</td><td><code>notify</code></td><td class="feels">A gentle single note, settling in</td></tr>
+        <tr><td>Tool call</td><td><code>tick</code></td><td class="feels">A crisp metallic "ta-ta"</td></tr>
+        <tr><td>Tool done</td><td><code>drop</code></td><td class="feels">A low settle, wrapping up</td></tr>
+        <tr><td>Command run</td><td><code>beep</code></td><td class="feels">A short beep, terminal-flavored</td></tr>
+        <tr><td>Command done</td><td><code>rise</code></td><td class="feels">A rising two-note "done"</td></tr>
+        <tr><td>Waiting for you</td><td><code>alert</code></td><td class="feels">A high triple-chirp, look here</td></tr>
+        <tr><td>Turn complete</td><td><code>success</code></td><td class="feels">A rising major chord, satisfying</td></tr>
+        <tr><td>Back to idle</td><td><code>confirm</code></td><td class="feels">A single note drifting down, quiet again</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><code>error</code> and <code>failure</code> are built in too, off by default — wire them up in config if you like.</p>
+  </div>
+</section>
+
+<section id="config">
+  <div class="wrap">
+    <h2>Configuration</h2>
+    <p class="lead">Edit the profile's <code>cordis.patch.yml</code> (Cordis validates and fills defaults at load):</p>
+    <table class="tbl">
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>enabled</code></td><td><code>true</code></td><td class="desc">Master switch</td></tr>
+        <tr><td><code>masterVolume</code></td><td><code>0.7</code></td><td class="desc">Master volume 0-1</td></tr>
+        <tr><td><code>muteAll</code></td><td><code>false</code></td><td class="desc">Mute, but the dot keeps working</td></tr>
+        <tr><td><code>maxQueue</code></td><td><code>8</code></td><td class="desc">Wait-queue capacity</td></tr>
+        <tr><td><code>maxConcurrent</code></td><td><code>3</code></td><td class="desc">Simultaneous sounds (1 = serial)</td></tr>
+        <tr><td><code>defaultCooldown</code></td><td><code>1000</code></td><td class="desc">Global cooldown fallback (ms)</td></tr>
+        <tr><td><code>statusRevertMs</code></td><td><code>1000</code></td><td class="desc">Transient status auto-revert (ms)</td></tr>
+        <tr><td><code>showStatusIndicator</code></td><td><code>true</code></td><td class="desc">Show the corner status dot</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Sound toggles and custom-sound replacements live in browser local storage (<code>localStorage</code> + IndexedDB) — click the dot to change them, applied instantly and kept across reloads.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <details open>
+      <summary>Is this an official DeepSeek plugin?</summary>
+      <p>No. It's a community plugin for DeepSeek Harness (<code>dsh</code>), MIT-licensed, not part of the official distribution.</p>
+    </details>
+    <details>
+      <summary>Why is there no sound?</summary>
+      <p>Most likely the browser autoplay policy — after the plugin loads you need to click the page once to unlock audio.</p>
+    </details>
+    <details>
+      <summary>Can I keep the sounds and drop the dot?</summary>
+      <p>Yes. Set <code>showStatusIndicator: false</code>; sounds keep working.</p>
+    </details>
+    <details>
+      <summary>Where are custom sounds stored?</summary>
+      <p>Bytes in browser IndexedDB, event-to-file mapping in <code>localStorage</code>. All local — nothing is uploaded anywhere.</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>dsh-bell-notify · Community plugin for DeepSeek Harness · <a href="https://github.com/Laplace-bit/dsh-bell-notify" target="_blank" rel="noopener">GitHub</a> · <a href="./">中文</a></p>
+    <p><a href="https://github.com/Laplace-bit/dsh-bell-notify/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var el = document.getElementById('rings')
+  var status = document.getElementById('demo-status')
+  var recipes
+  try { recipes = JSON.parse(el.getAttribute('data-recipes')) } catch (e) { return }
+  var MASTER = 0.7, ATTACK = 0.005
+  var ctx = null, master = null
+
+  function ensureContext() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)()
+      master = ctx.createGain()
+      master.gain.value = MASTER
+      master.connect(ctx.destination)
+    }
+    if (ctx.state === 'suspended') ctx.resume()
+    return ctx
+  }
+
+  function play(id) {
+    var recipe = recipes[id]
+    var c = ensureContext()
+    var t0 = c.currentTime + 0.01
+    var total = 0
+    for (var i = 0; i < recipe.n.length; i++) {
+      var n = recipe.n[i]
+      var osc = c.createOscillator()
+      var env = c.createGain()
+      osc.type = n.w
+      osc.frequency.setValueAtTime(n.f, t0 + n.s)
+      if (n.t !== undefined) osc.frequency.linearRampToValueAtTime(n.t, t0 + n.s + n.d)
+      var atk = Math.min(ATTACK, n.d / 2)
+      env.gain.setValueAtTime(0, t0 + n.s)
+      env.gain.linearRampToValueAtTime(n.g, t0 + n.s + atk)
+      env.gain.linearRampToValueAtTime(0, t0 + n.s + n.d)
+      osc.connect(env); env.connect(master)
+      osc.start(t0 + n.s); osc.stop(t0 + n.s + n.d + 0.005)
+      if (n.s + n.d > total) total = n.s + n.d
+    }
+    var btns = [].slice.call(document.querySelectorAll('.ring-btn'))
+    btns.forEach(function (b) { b.disabled = true })
+    status.textContent = 'Playing ' + id + ' …'
+    setTimeout(function () {
+      btns.forEach(function (b) { b.disabled = false })
+      status.textContent = ''
+    }, (total + 0.1) * 1000)
+  }
+
+  var names = ['startup', 'click', 'notify', 'tick', 'drop', 'beep', 'rise', 'alert', 'success', 'confirm', 'error', 'failure']
+  var html = ''
+  for (var i = 0; i < names.length; i++) {
+    var id = names[i]
+    html += '<button type="button" class="ring-btn" data-id="' + id + '">' + id + '<span class="desc">' + recipes[id].desc + '</span></button>'
+  }
+  el.innerHTML = html
+  el.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.ring-btn') : null
+    if (b && !b.disabled) play(b.getAttribute('data-id'))
+  })
+})()
+</script>
+</body>
+</html>

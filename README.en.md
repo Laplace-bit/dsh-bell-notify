@@ -126,7 +126,7 @@ pnpm test           # unit tests
 pnpm typecheck
 ```
 
-Want to hear every built-in bell? Open [preview.html](preview.html) and click through them all on one page.
+Want to hear every built-in bell? Open [preview.html](preview.html), or try the [project page](https://laplace-bit.github.io/dsh-bell-notify/) to listen live.
 
 ## FAQ
 
