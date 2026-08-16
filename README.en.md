@@ -75,16 +75,16 @@ It's not a serious productivity feature. It's more like hanging a little bell on
 From a DeepSeek Harness source checkout:
 
 ```sh
-pnpm dsh plugin --profile bell add github:Laplace-bit/dsh-bell-notify
+pnpm dsh plugin --profile bell add dsh-bell-notify
 ```
 
 If `dsh` is already on your `PATH`:
 
 ```sh
-dsh plugin --profile bell add github:Laplace-bit/dsh-bell-notify
+dsh plugin --profile bell add dsh-bell-notify
 ```
 
-> The first `add` is expected to fail: git install has to run this package's `prepare` script, and pnpm ≥10 blocks that until you allow it. Open `~/.dsh/profiles/bell/pnpm-workspace.yaml`, add the `onlyBuiltDependencies` snippet pnpm printed, then run the same `add` again.
+> The npm package ships prebuilt `lib/`, so no pnpm ≥10 build-script allowance is needed.
 
 Start it:
 

@@ -75,16 +75,16 @@ Agent 的一举一动都会「响一声」，而且**每个环节的声音都不
 从 DeepSeek Harness 源码仓库里：
 
 ```sh
-pnpm dsh plugin --profile bell add github:Laplace-bit/dsh-bell-notify
+pnpm dsh plugin --profile bell add dsh-bell-notify
 ```
 
 如果 `PATH` 上已经有 `dsh`：
 
 ```sh
-dsh plugin --profile bell add github:Laplace-bit/dsh-bell-notify
+dsh plugin --profile bell add dsh-bell-notify
 ```
 
-> 第一次 `add` 失败是正常的：git 安装要跑这个包的 `prepare` 脚本，pnpm ≥10 会在你授权前拦截。打开 `~/.dsh/profiles/bell/pnpm-workspace.yaml`，把 pnpm 打印的那段 `onlyBuiltDependencies` 加进去，然后重新执行同一条 `add`。
+> npm 包带预构建产物，无需 pnpm ≥10 的构建脚本授权，直接可装。
 
 启动：
 
