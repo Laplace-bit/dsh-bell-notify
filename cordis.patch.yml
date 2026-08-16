@@ -1,0 +1,12 @@
+# Applied when this package appears in a profile's dsh.profile.bundles list.
+- insert:
+    - id: bell-notify
+      name: dsh-bell-notify
+      config:
+        enabled: true
+        masterVolume: 0.7
+        muteAll: false
+        maxQueue: 8
+        defaultCooldown: 1000
+        statusRevertMs: 1000
+        showStatusIndicator: true

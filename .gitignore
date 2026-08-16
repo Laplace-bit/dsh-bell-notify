@@ -1,0 +1,10 @@
+node_modules/
+lib/
+coverage/
+audio-preview/
+*.tsbuildinfo
+.DS_Store
+.idea/
+.vscode/
+*.log
+.claude/

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<title>bell-notify 铃声试听台</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; background: #111418; color: #e6e6e6; }
+  h1 { font-size: 20px; }
+  p.note { color: #9aa0a6; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  button { padding: 14px 16px; border: 1px solid #333a42; border-radius: 10px; background: #1b2027; color: #e6e6e6; font-size: 15px; text-align: left; cursor: pointer; transition: background .15s; }
+  button:hover { background: #242b34; }
+  button .desc { display: block; color: #9aa0a6; font-size: 12px; margin-top: 4px; }
+  button:disabled { opacity: .5; }
+</style>
+</head>
+<body>
+<h1>bell-notify 铃声试听台</h1>
+<p class="note">与插件运行时使用同一份配方与渲染逻辑（Web Audio 振荡器实时合成，无音频文件）。音量 0.7，即默认 masterVolume。</p>
+<div class="grid" id="grid"></div>
+<p class="note" id="status"></p>
+<script type="module">
+// 配方数据与 src/core/sounds.ts 保持同步
+const RECIPES = {
+  startup: { desc: '300→900Hz 上行扫频 0.35s（会话启动）', notes: [{ wave: 'sine', from: 300, to: 900, start: 0, duration: 0.35, gain: 0.6 }] },
+  click: { desc: '1200Hz 短促 go 单击 0.045s（开始执行）', notes: [{ wave: 'sine', from: 1200, start: 0, duration: 0.045, gain: 0.5 }] },
+  notify: { desc: '392Hz 柔和单音 0.28s（开始思考）', notes: [{ wave: 'sine', from: 392, start: 0, duration: 0.28, gain: 0.45 }] },
+  tick: { desc: '1600+2000Hz 金属双 tick（工具调用）', notes: [
+    { wave: 'triangle', from: 1600, start: 0, duration: 0.03, gain: 0.4 },
+    { wave: 'triangle', from: 2000, start: 0.045, duration: 0.03, gain: 0.4 }] },
+  drop: { desc: '440→330Hz 低音下滑 0.18s（工具完成）', notes: [{ wave: 'sine', from: 440, to: 330, start: 0, duration: 0.18, gain: 0.5 }] },
+  beep: { desc: '520Hz 短方波 beep 0.07s（命令执行）', notes: [{ wave: 'square', from: 520, start: 0, duration: 0.07, gain: 0.35 }] },
+  rise: { desc: '520+780Hz 上行双音（命令完成）', notes: [
+    { wave: 'sine', from: 520, start: 0, duration: 0.08, gain: 0.5 },
+    { wave: 'sine', from: 780, start: 0.09, duration: 0.12, gain: 0.5 }] },
+  alert: { desc: '880Hz 高频三连 0.32s（等待确认）', notes: [0, 0.12, 0.24].map((start) => ({ wave: 'sine', from: 880, start, duration: 0.08, gain: 0.6 })) },
+  success: { desc: 'C-E-G 上行大三和弦（本轮完成）', notes: [
+    { wave: 'sine', from: 523.25, start: 0, duration: 0.11, gain: 0.6 },
+    { wave: 'sine', from: 659.25, start: 0.11, duration: 0.11, gain: 0.6 },
+    { wave: 'sine', from: 783.99, start: 0.22, duration: 0.11, gain: 0.6 }] },
+  confirm: { desc: '660→440Hz 单音下滑 0.22s（回到空闲）', notes: [{ wave: 'sine', from: 660, to: 440, start: 0, duration: 0.22, gain: 0.5 }] },
+  error: { desc: '150Hz 方波 0.4s（保留音）', notes: [{ wave: 'square', from: 150, start: 0, duration: 0.4, gain: 0.5 }] },
+  failure: { desc: '400→200Hz 下滑音 0.35s（保留音）', notes: [{ wave: 'sine', from: 400, to: 200, start: 0, duration: 0.35, gain: 0.6 }] },
+}
+const MASTER_VOLUME = 0.7
+const ATTACK = 0.005
+
+let ctx, master
+function ensureContext() {
+  if (!ctx) {
+    ctx = new AudioContext()
+    master = ctx.createGain()
+    master.gain.value = MASTER_VOLUME
+    master.connect(ctx.destination)
+  }
+  return ctx
+}
+
+// 与 src/platform/audio.ts 的 WebAudioPlayer.play 渲染逻辑一致
+function play(id) {
+  const recipe = RECIPES[id]
+  const c = ensureContext()
+  if (c.state === 'suspended') c.resume()
+  const t0 = c.currentTime + 0.01
+  let total = 0
+  for (const n of recipe.notes) {
+    const osc = c.createOscillator()
+    const env = c.createGain()
+    osc.type = n.wave
+    osc.frequency.setValueAtTime(n.from, t0 + n.start)
+    if (n.to !== undefined) osc.frequency.linearRampToValueAtTime(n.to, t0 + n.start + n.duration)
+    const attack = Math.min(ATTACK, n.duration / 2)
+    env.gain.setValueAtTime(0, t0 + n.start)
+    env.gain.linearRampToValueAtTime(n.gain, t0 + n.start + attack)
+    env.gain.linearRampToValueAtTime(0, t0 + n.start + n.duration)
+    osc.connect(env); env.connect(master)
+    osc.start(t0 + n.start); osc.stop(t0 + n.start + n.duration + 0.005)
+    total = Math.max(total, n.start + n.duration)
+  }
+  const status = document.getElementById('status')
+  const btns = [...document.querySelectorAll('button')]
+  btns.forEach((b) => (b.disabled = true))
+  status.textContent = `正在播放 ${id} …`
+  setTimeout(() => {
+    btns.forEach((b) => (b.disabled = false))
+    status.textContent = ''
+  }, (total + 0.1) * 1000)
+}
+
+const grid = document.getElementById('grid')
+for (const [id, r] of Object.entries(RECIPES)) {
+  const btn = document.createElement('button')
+  btn.innerHTML = `${id}<span class="desc">${r.desc}</span>`
+  btn.onclick = () => play(id)
+  grid.appendChild(btn)
+}
+</script>
+</body>
+</html>
