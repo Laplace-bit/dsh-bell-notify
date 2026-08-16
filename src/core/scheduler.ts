@@ -4,6 +4,11 @@ export interface SoundPlayer {
    * WebAudio 不可用等情况应 reject，由调度器静默吞掉（fail-open）。
    */
   play(soundId: string): Promise<void>
+  /**
+   * 立即停止指定声音（若正在播放）。实现需尽快 resolve 对应的 play()
+   * 使其收尾，且绝不可抛错（fail-open）；未在播放时静默无操作。
+   */
+  stop?(soundId: string): void
 }
 
 export interface SubmitOptions {
@@ -106,6 +111,23 @@ export class SoundScheduler {
 
   get isPlaying(): boolean {
     return this.active > 0
+  }
+
+  /**
+   * 立即停止某个声音：从等待队列移除，若正在播放则交给 player.stop。
+   * 用于生命周期配对（结束事件停掉开始事件的残留声音），同步返回、不阻塞。
+   * 停止不影响冷却记录（仍在节流窗口内，避免立刻重触发）。
+   */
+  stop(soundId: string): void {
+    if (this.activeIds.has(soundId)) {
+      try {
+        this.player.stop?.(soundId)
+      } catch {
+        /* fail-open：停止失败不影响调度与宿主 */
+      }
+      return
+    }
+    this.queue = this.queue.filter((task) => task.soundId !== soundId)
   }
 
   dispose(): void {

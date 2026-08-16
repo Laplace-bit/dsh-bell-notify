@@ -6,6 +6,8 @@ export const EVENTS = {
   agentStart: 'agent:start',
   /** Agent 开始思考（当前会话 partial 首次出现 reasoning 块） */
   agentThinking: 'agent:thinking',
+  /** Agent 结束思考（当前会话 reasoning 块消失） */
+  agentThinkingDone: 'agent:thinking:done',
   /** 工具调用派发（当前会话 runningCalls 新增 callId） */
   toolStart: 'tool:start',
   /** 工具调用完成（callId 从 runningCalls 消失） */

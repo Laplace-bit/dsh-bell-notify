@@ -25,6 +25,7 @@ class FakeBufferSource {
   buffer: unknown = null
   connect = vi.fn()
   start = vi.fn()
+  stop = vi.fn()
 }
 
 class FakeContext {
@@ -211,5 +212,45 @@ describe('WebAudioPlayer', () => {
     })
     const blob = { arrayBuffer: async () => new ArrayBuffer(0) } as Blob
     await expect(player.registerCustomSound('custom:x', blob)).rejects.toThrow(/unavailable/)
+  })
+
+  it('stop 在声音自然结束前切断其 oscillator 并使 play 提前 resolve', async () => {
+    const ctx = new FakeContext()
+    // 用“永不结束”的 delay 保持声音在播，验证 stop 主动切断并 resolve
+    const hanging = new WebAudioPlayer({
+      createContext: () => ctx,
+      delay: () => new Promise<void>(() => {}),
+    })
+    const pending = hanging.play('startup') // 0.35s 上行扫频
+    await Promise.resolve()
+    expect(ctx.oscillators).toHaveLength(1)
+    const osc = ctx.oscillators[0]!
+    hanging.stop('startup')
+    await expect(pending).resolves.toBeUndefined()
+    expect(osc.stop).toHaveBeenCalled()
+  })
+
+  it('stop 自定义 buffer 声音会 stop 其 source 节点', async () => {
+    const ctx = new FakeContext()
+    const hanging = new WebAudioPlayer({
+      createContext: () => ctx,
+      delay: () => new Promise<void>(() => {}),
+    })
+    const blob = { arrayBuffer: async () => new ArrayBuffer(0) } as Blob
+    await hanging.registerCustomSound('custom:x', blob)
+    const pending = hanging.play('custom:x')
+    await Promise.resolve()
+    expect(ctx.sources).toHaveLength(1)
+    hanging.stop('custom:x')
+    await expect(pending).resolves.toBeUndefined()
+    expect(ctx.sources[0]!.stop).toHaveBeenCalled()
+  })
+
+  it('stop 未播放的声音无副作用且不抛错', async () => {
+    const ctx = new FakeContext()
+    const { player } = makePlayer(() => ctx)
+    expect(() => player.stop('nothing')).not.toThrow()
+    await player.play('click')
+    expect(ctx.oscillators).toHaveLength(1)
   })
 })

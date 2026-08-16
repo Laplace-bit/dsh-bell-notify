@@ -43,6 +43,7 @@ export function toConversationSignal(snapshot: ConversationSnapshotLike): Conver
  *
  * 派生规则（与 DSH 运行时 snapshot 语义对齐）：
  * - reasoning 块首次出现 → agent:thinking（流式，仅触发一次）
+ * - reasoning 块消失 → agent:thinking:done（用于停掉思考音）
  * - callId 进入 runningToolIds → tool:start
  * - callId 离开 runningToolIds → tool:done
  * - 出现 outcome 为空的 command 节点 → command:start
@@ -56,6 +57,7 @@ export function diffConversation(
   if (prev === undefined) return events
 
   if (!prev.hasReasoning && next.hasReasoning) events.push(EVENTS.agentThinking)
+  else if (prev.hasReasoning && !next.hasReasoning) events.push(EVENTS.agentThinkingDone)
 
   const prevTools = new Set(prev.runningToolIds)
   const nextTools = new Set(next.runningToolIds)

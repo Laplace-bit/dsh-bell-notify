@@ -5,6 +5,7 @@ import type { SoundPlayer } from '../src/core/scheduler'
 /** 受控播放器：手动决定每个声音何时“自然结束”，支持并发在飞。 */
 class FakePlayer implements SoundPlayer {
   readonly played: string[] = []
+  readonly stopped: string[] = []
   private pending = new Map<number, { soundId: string; resolve: () => void }>()
   private nextId = 0
   private rejectIds = new Set<string>()
@@ -20,6 +21,15 @@ class FakePlayer implements SoundPlayer {
       const id = this.nextId++
       this.pending.set(id, { soundId, resolve })
     })
+  }
+
+  stop(soundId: string): void {
+    this.stopped.push(soundId)
+    const entry = [...this.pending.entries()].find(([, p]) => p.soundId === soundId)
+    if (entry) {
+      this.pending.delete(entry[0])
+      entry[1].resolve()
+    }
   }
 
   /** 当前在飞（未结束）的声音 id，按提交顺序。 */
@@ -237,5 +247,40 @@ describe('SoundScheduler', () => {
       advance(1)
     }
     expect(scheduler.pendingCount).toBeLessThanOrEqual(9)
+  })
+
+  it('stop 停止正在播放的声音并交给 player，且不占用冷却记录', async () => {
+    const { player, scheduler, advance } = setup(undefined, 2)
+    expect(scheduler.submit('think', { cooldown: 500 })).toBe(true)
+    expect(player.played).toEqual(['think'])
+    scheduler.stop('think')
+    expect(player.stopped).toEqual(['think'])
+    await settle()
+    expect(scheduler.activeCount).toBe(0)
+    expect(scheduler.isPlaying).toBe(false)
+    // 冷却记录仍在：窗口内再提交被节流拒绝
+    expect(scheduler.submit('think', { cooldown: 500 })).toBe(false)
+    // 冷却到期后正常受理
+    advance(500)
+    expect(scheduler.submit('think', { cooldown: 500 })).toBe(true)
+  })
+
+  it('stop 移除仍在等待队列中的声音', () => {
+    const { player, scheduler } = setup(undefined, 1)
+    scheduler.submit('busy')
+    scheduler.submit('think')
+    expect(scheduler.pendingCount).toBe(1)
+    scheduler.stop('think')
+    expect(scheduler.pendingCount).toBe(0)
+    player.finish('busy')
+    expect(player.played).toEqual(['busy'])
+  })
+
+  it('stop 未在播放的声音无副作用', () => {
+    const { player, scheduler } = setup()
+    scheduler.submit('a')
+    scheduler.stop('nope')
+    expect(player.stopped).toEqual([])
+    expect(scheduler.activeCount).toBe(1)
   })
 })

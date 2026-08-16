@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { DEFAULT_RULE_INPUTS, mergeRuleInputs, RuleTable } from '../src/core/rules'
 
 describe('RuleTable 默认表', () => {
-  it('预置 10 类生命周期事件且解析出默认 priority/cooldown', () => {
+  it('预置 11 类生命周期事件且解析出默认 priority/cooldown', () => {
     const table = new RuleTable()
-    expect(table.size).toBe(10)
+    expect(table.size).toBe(11)
 
     const waiting = table.get('agent:waiting')!
     expect(waiting.soundId).toBe('alert')
@@ -25,6 +25,10 @@ describe('RuleTable 默认表', () => {
     expect(thinking.soundId).toBe('notify')
     expect(thinking.uiStatus).toBe('thinking')
     expect(thinking.cooldown).toBe(500)
+
+    const thinkingDone = table.get('agent:thinking:done')!
+    expect(thinkingDone.soundId).toBeUndefined()
+    expect(thinkingDone.uiStatus).toBeUndefined()
 
     const toolStart = table.get('tool:start')!
     expect(toolStart.soundId).toBe('tick')
@@ -100,7 +104,7 @@ describe('mergeRuleInputs 配置合并', () => {
   it('新增默认表中不存在的自定义事件', () => {
     const merged = mergeRuleInputs([{ event: 'custom:event', soundId: 'notify' }])
     const table = new RuleTable(merged)
-    expect(table.size).toBe(11)
+    expect(table.size).toBe(12)
     expect(table.get('custom:event')!.soundId).toBe('notify')
   })
 

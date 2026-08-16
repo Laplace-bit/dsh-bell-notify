@@ -29,6 +29,7 @@ import { SoundScheduler } from '../core/scheduler.ts'
 import { StatusMachine } from '../core/state.ts'
 import { SoundToggles, TOGGLEABLE_EVENTS } from '../core/toggles.ts'
 import { SoundAssignments, CUSTOM_SOUND_PREFIX } from '../core/sound-assignments.ts'
+import { LIFECYCLE_STOPS } from '../core/lifecycle.ts'
 import { diffConversation, toConversationSignal, type ConversationSignal } from '../core/conversation-diff.ts'
 import type { AgentStatus } from '../core/types.ts'
 import { WebAudioPlayer } from '../platform/audio.ts'
@@ -115,6 +116,18 @@ function setup(config: ReturnType<typeof readBootConfig>, sessions: SessionsServ
   let offAssignments: (() => void) | null = null
 
   const emit = (event: string): void => {
+    // 生命周期配对：结束事件先停掉对应开始事件的残留声音（同步、不阻塞），
+    // 再派发自身。这样结束音与开始音不会叠加。
+    const stops = LIFECYCLE_STOPS[event]
+    if (stops) {
+      for (const started of stops) {
+        const startedRule = rules.get(started)
+        if (!startedRule?.soundId) continue
+        const startedSoundId = assignments.getKey(started) ?? startedRule.soundId
+        scheduler.stop(startedSoundId)
+      }
+    }
+
     const rule = rules.get(event)
     if (!rule) return
     if (rule.soundId && toggles.isEnabled(event)) {

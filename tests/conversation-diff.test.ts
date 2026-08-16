@@ -59,6 +59,14 @@ describe('diffConversation', () => {
     expect(diffConversation(next, { ...base, hasReasoning: true })).toEqual([])
   })
 
+  it('reasoning 块消失 → agent:thinking:done', () => {
+    const prev: ConversationSignal = { ...base, hasReasoning: true }
+    const next: ConversationSignal = { ...base, hasReasoning: false }
+    expect(diffConversation(prev, next)).toEqual(['agent:thinking:done'])
+    // 持续不存在不重复触发
+    expect(diffConversation(next, { ...base, hasReasoning: false })).toEqual([])
+  })
+
   it('callId 进入 → tool:start；离开 → tool:done', () => {
     const prev: ConversationSignal = { ...base, runningToolIds: [] }
     const started = diffConversation(prev, { ...base, runningToolIds: ['t1'] })

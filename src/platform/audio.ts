@@ -32,6 +32,12 @@ interface AudioBufferSourceNodeLike {
   buffer: unknown
   connect(target: unknown): unknown
   start(when?: number): void
+  stop(when?: number): void
+}
+
+/** 一个正在发声的声音，持有能立即切断它的节点。 */
+interface ActiveSound {
+  stopNodes(): void
 }
 
 interface AudioContextLike {
@@ -91,6 +97,10 @@ export class WebAudioPlayer implements SoundPlayer {
   private readonly delay: (ms: number) => Promise<void>
   private readonly customBuffers = new Map<string, AudioBufferLike>()
   private readonly pendingCustom = new Map<string, Promise<void>>()
+  /** 正在播放中的声音：合成的 oscillator 与其绝对起始时刻（用于提前停止）。 */
+  private readonly activeSounds = new Map<string, ActiveSound>()
+  /** 每个在飞声音的结束信号：stop 时立即触发，使 play() 提前 resolve。 */
+  private readonly stopWaiters = new Map<string, () => void>()
 
   constructor(options: AudioPlayerOptions = {}) {
     this.masterVolume = clampVolume(options.masterVolume ?? 0.7)
@@ -116,7 +126,7 @@ export class WebAudioPlayer implements SoundPlayer {
     if (this.muted) return
     const custom = this.customBuffers.get(soundId)
     if (custom) {
-      await this.playBuffer(custom)
+      await this.playBuffer(custom, soundId)
       return
     }
     const recipe = getRecipe(soundId)
@@ -136,6 +146,7 @@ export class WebAudioPlayer implements SoundPlayer {
 
     const master = this.master!
     const t0 = ctx.currentTime + 0.01
+    const nodes: OscillatorLike[] = []
     for (const note of recipe.notes) {
       const osc = ctx.createOscillator()
       const envelope = ctx.createGain()
@@ -153,8 +164,52 @@ export class WebAudioPlayer implements SoundPlayer {
       envelope.connect(master)
       osc.start(t0 + note.start)
       osc.stop(t0 + note.start + note.duration + 0.005)
+      nodes.push(osc)
     }
-    await this.delay(Math.ceil((recipeDuration(recipe) + TAIL_SECONDS) * 1000))
+    this.activeSounds.set(soundId, {
+      stopNodes: () => {
+        for (const osc of nodes) {
+          try {
+            osc.stop()
+          } catch {
+            /* 节点可能已自然结束，忽略 */
+          }
+        }
+      },
+    })
+    await this.waitForFinish(soundId, recipeDuration(recipe) + TAIL_SECONDS)
+  }
+
+  /**
+   * 立即停止指定声音（若正在播放）。同步切断其 oscillator/buffer 节点并
+   * 触发对应 play() 提前 resolve，让调度器尽快补位；未在播放时无操作。
+   */
+  stop(soundId: string): void {
+    const active = this.activeSounds.get(soundId)
+    if (active) {
+      try {
+        active.stopNodes()
+      } catch {
+        /* fail-open */
+      }
+    }
+    this.stopWaiters.get(soundId)?.()
+  }
+
+  /** 等待声音自然播完或被 stop() 提前终止；负责清理注册表。 */
+  private waitForFinish(soundId: string, seconds: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      let done = false
+      const finish = (): void => {
+        if (done) return
+        done = true
+        this.stopWaiters.delete(soundId)
+        this.activeSounds.delete(soundId)
+        resolve()
+      }
+      this.stopWaiters.set(soundId, finish)
+      void this.delay(Math.ceil(seconds * 1000)).then(finish, finish)
+    })
   }
 
   /**
@@ -185,7 +240,7 @@ export class WebAudioPlayer implements SoundPlayer {
     this.customBuffers.delete(key)
   }
 
-  private async playBuffer(buffer: AudioBufferLike): Promise<void> {
+  private async playBuffer(buffer: AudioBufferLike, soundId: string): Promise<void> {
     const ctx = this.ensureContext()
     if (!ctx) throw new Error('bell-notify: audio unavailable')
     if (ctx.state === 'suspended') await ctx.resume()
@@ -196,7 +251,16 @@ export class WebAudioPlayer implements SoundPlayer {
     source.connect(gain)
     gain.connect(this.master!)
     source.start()
-    await this.delay(Math.ceil((buffer.duration + TAIL_SECONDS) * 1000))
+    this.activeSounds.set(soundId, {
+      stopNodes: () => {
+        try {
+          source.stop()
+        } catch {
+          /* 节点可能已自然结束，忽略 */
+        }
+      },
+    })
+    await this.waitForFinish(soundId, buffer.duration + TAIL_SECONDS)
   }
 
   /**
@@ -225,6 +289,8 @@ export class WebAudioPlayer implements SoundPlayer {
     this.warnedSuspended = false
     this.customBuffers.clear()
     this.pendingCustom.clear()
+    this.activeSounds.clear()
+    this.stopWaiters.clear()
     if (ctx && ctx.state !== 'closed') {
       try {
         await ctx.close()
