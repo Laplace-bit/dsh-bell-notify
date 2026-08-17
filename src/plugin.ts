@@ -19,6 +19,8 @@ export const name = 'dsh-bell-notify'
  * from the shared defaults, so an invalid value fails the load loudly.
  */
 export interface Config extends BellConfig {
+  /** @deprecated Folded into enabled so legacy profiles remain silent when upgraded. */
+  readonly muteAll?: boolean
   /** @deprecated Accepted only so existing profiles can remove the retired status UI fields gradually. */
   readonly statusRevertMs?: number
   /** @deprecated Accepted only so existing profiles can remove the retired status UI fields gradually. */
@@ -28,7 +30,7 @@ export interface Config extends BellConfig {
 export const Config: Schema<Config> = Schema.object({
   enabled: Schema.boolean().default(DEFAULT_CONFIG.enabled),
   masterVolume: Schema.number().min(0).max(1).default(DEFAULT_CONFIG.masterVolume),
-  muteAll: Schema.boolean().default(DEFAULT_CONFIG.muteAll),
+  muteAll: Schema.boolean().required(false),
   maxQueue: Schema.number().min(1).max(64).default(DEFAULT_CONFIG.maxQueue),
   maxConcurrent: Schema.number().min(1).max(16).default(DEFAULT_CONFIG.maxConcurrent),
   defaultCooldown: Schema.number().min(0).max(60_000).default(DEFAULT_CONFIG.defaultCooldown),
@@ -42,20 +44,34 @@ export const Config: Schema<Config> = Schema.object({
 function settingsSchema(defaults: BellSettings): Schema<BellSettings> {
   return Schema.object({
     enabled: Schema.boolean().default(defaults.enabled),
-    muteAll: Schema.boolean().default(defaults.muteAll),
     masterVolume: Schema.number().min(0).max(1).default(defaults.masterVolume),
   })
 }
 
-function isBellSettings(value: unknown): value is BellSettings {
-  if (typeof value !== 'object' || value === null) return false
+function parseBellSettings(value: unknown): BellSettings | undefined {
+  if (typeof value !== 'object' || value === null) return undefined
   const settings = value as Partial<BellSettings>
-  return typeof settings.enabled === 'boolean'
-    && typeof settings.muteAll === 'boolean'
-    && typeof settings.masterVolume === 'number'
-    && Number.isFinite(settings.masterVolume)
-    && settings.masterVolume >= 0
-    && settings.masterVolume <= 1
+  if (Object.keys(settings).some(key => key !== 'enabled' && key !== 'masterVolume')) return undefined
+  if (typeof settings.enabled !== 'boolean'
+    || typeof settings.masterVolume !== 'number'
+    || !Number.isFinite(settings.masterVolume)
+    || settings.masterVolume < 0
+    || settings.masterVolume > 1) {
+    return undefined
+  }
+  return {
+    enabled: settings.enabled,
+    masterVolume: settings.masterVolume,
+  }
+}
+
+/** Fold the retired durable mute flag into the remaining global sound switch. */
+function effectiveSettings(settings: BellSettings): BellSettings {
+  const legacy = settings as BellSettings & { muteAll?: unknown }
+  return {
+    enabled: settings.enabled && legacy.muteAll !== true,
+    masterVolume: settings.masterVolume,
+  }
 }
 
 /**
@@ -84,13 +100,12 @@ export function apply(ctx: Context, config: Config): void {
       let upgrade: Promise<void> | undefined
       const view = (): BellSettingsView => {
         const installation = inspectProfileInstallation(connectionCtx.baseUrl, BELL_PACKAGE_NAME)
-        const settings = scope.get()
+        const settings = effectiveSettings(scope.get())
         return {
           version: BELL_PACKAGE_VERSION,
           installation: installation.kind,
           writable: connectionCtx.settings.writable,
           enabled: settings.enabled,
-          muteAll: settings.muteAll,
           masterVolume: settings.masterVolume,
           canUpgrade: installation.kind === 'npm',
         }
@@ -98,7 +113,8 @@ export function apply(ctx: Context, config: Config): void {
       const handler: ConnectionRpcHandler = async (endpoint, payload) => {
         if (endpoint === BELL_SETTINGS_RPC.read) return { ok: true, value: view() }
         if (endpoint === BELL_SETTINGS_RPC.write) {
-          if (!isBellSettings(payload)) {
+          const settings = parseBellSettings(payload)
+          if (settings === undefined) {
             return {
               ok: false,
               error: { code: 'settings-rejected', message: 'bell-notify settings are invalid', details: { ns: BELL_SETTINGS_NS } },
@@ -111,7 +127,9 @@ export function apply(ctx: Context, config: Config): void {
             }
           }
           try {
-            await scope.update(payload)
+            // A complete card form owns this namespace. Replacing rather than
+            // merging also removes any pre-0.1.0 muteAll user setting.
+            await scope.replace(settings)
           } catch {
             return {
               ok: false,

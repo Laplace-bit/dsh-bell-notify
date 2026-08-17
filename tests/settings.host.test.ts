@@ -15,8 +15,9 @@ import { BELL_SETTINGS_RPC, BELL_SETTINGS_RPC_CHANNEL } from '../src/settings-ap
 import { BELL_SETTINGS_NS, DEFAULT_BELL_SETTINGS } from '../src/settings.ts'
 
 class MemorySettings extends SettingsProvider {
+  static initial: Record<string, unknown> = {}
   readonly writable = true
-  protected load(): Promise<Record<string, unknown>> { return Promise.resolve({}) }
+  protected load(): Promise<Record<string, unknown>> { return Promise.resolve(structuredClone(MemorySettings.initial)) }
   protected persist(_ns: SettingsNamespace, _section: Record<string, unknown>): Promise<void> {
     return Promise.resolve()
   }
@@ -59,7 +60,7 @@ function writeInstalledManifest(profile: string, manifest: object): void {
   writeFileSync(join(packageDir, 'package.json'), JSON.stringify(manifest), 'utf8')
 }
 
-async function mountHost(baseUrl: string): Promise<{
+async function mountHost(baseUrl: string, initial: Record<string, unknown> = {}): Promise<{
   ctx: Context
   fiber: ReturnType<Context['plugin']>
   registration: RpcRegistration
@@ -75,7 +76,13 @@ async function mountHost(baseUrl: string): Promise<{
       },
     },
   } as never)
-  await ctx.plugin(MemorySettings).await()
+  const previous = MemorySettings.initial
+  MemorySettings.initial = initial
+  try {
+    await ctx.plugin(MemorySettings).await()
+  } finally {
+    MemorySettings.initial = previous
+  }
   const fiber = ctx.plugin({ apply, Config })
   await fiber.await()
   if (registration === undefined) throw new Error('bell-notify RPC was not registered')
@@ -105,7 +112,6 @@ describe('bell-notify host settings', () => {
       ok: true,
       value: {
         enabled: true,
-        muteAll: false,
         masterVolume: 0.7,
         installation: 'npm',
         canUpgrade: true,
@@ -114,21 +120,42 @@ describe('bell-notify host settings', () => {
 
     const updated = await registration.handler(BELL_SETTINGS_RPC.write, {
       enabled: false,
-      muteAll: true,
       masterVolume: 0.35,
     }, signal())
     expect(updated).toMatchObject({
       ok: true,
-      value: { enabled: false, muteAll: true, masterVolume: 0.35 },
+      value: { enabled: false, masterVolume: 0.35 },
     })
     expect(ctx.settings.get(settingsNamespace(BELL_SETTINGS_NS))).toEqual({
-      enabled: false, muteAll: true, masterVolume: 0.35,
+      enabled: false, masterVolume: 0.35,
     })
 
     const malformed = await registration.handler(BELL_SETTINGS_RPC.write, {
-      enabled: 'no', muteAll: false, masterVolume: 0.7,
+      enabled: 'no', masterVolume: 0.7,
     }, signal())
     expect(malformed).toMatchObject({ ok: false, error: { code: 'settings-rejected' } })
+
+    const retiredField = await registration.handler(BELL_SETTINGS_RPC.write, {
+      enabled: true, muteAll: true, masterVolume: 0.7,
+    }, signal())
+    expect(retiredField).toMatchObject({ ok: false, error: { code: 'settings-rejected' } })
+    await fiber.dispose()
+  })
+
+  it('migrates a legacy durable mute setting when the new two-field form is saved', async () => {
+    const { ctx, fiber, registration } = await mountHost(profileBaseUrl('^0.1.0'), {
+      [BELL_SETTINGS_NS]: { enabled: true, muteAll: true, masterVolume: 0.7 },
+    })
+
+    const initial = await registration.handler(BELL_SETTINGS_RPC.read, {}, signal())
+    expect(initial).toMatchObject({ ok: true, value: { enabled: false, masterVolume: 0.7 } })
+
+    const updated = await registration.handler(BELL_SETTINGS_RPC.write, {
+      enabled: true,
+      masterVolume: 0.7,
+    }, signal())
+    expect(updated).toMatchObject({ ok: true, value: { enabled: true, masterVolume: 0.7 } })
+    expect(ctx.settings.get(settingsNamespace(BELL_SETTINGS_NS))).toEqual({ enabled: true, masterVolume: 0.7 })
     await fiber.dispose()
   })
 

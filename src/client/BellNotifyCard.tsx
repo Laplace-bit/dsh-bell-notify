@@ -89,19 +89,6 @@ export function BellNotifyCard(props: BellNotifyCardProps) {
               </label>
               <label className={css.field}>
                 <span className={css.fieldHead}>
-                  <span className={css.label}>{t('muteAll')}</span>
-                  <input
-                    type="checkbox"
-                    className={css.toggle}
-                    checked={state.muteAll}
-                    disabled={!state.writable}
-                    onChange={(event) => { props.edit({ muteAll: event.target.checked }) }}
-                  />
-                </span>
-                <span className={css.hint}>{t('muteAllHint')}</span>
-              </label>
-              <label className={css.field}>
-                <span className={css.fieldHead}>
                   <span className={css.label}>{t('masterVolume')}</span>
                   <output className={css.volumeValue}>{volume}%</output>
                 </span>

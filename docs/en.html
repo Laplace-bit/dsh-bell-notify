@@ -295,7 +295,7 @@
 <section id="config">
   <div class="wrap">
     <h2>Configuration</h2>
-    <p class="lead">Manage enablement, mute, volume, and every sound event in <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. These are the profile's regular runtime parameters:</p>
+    <p class="lead">Manage enablement, volume, and every sound event in <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. Disabling notification sounds mutes everything. These are the profile's regular runtime parameters:</p>
     <table class="tbl">
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
@@ -304,7 +304,7 @@
         <tr><td><code>defaultCooldown</code></td><td><code>1000</code></td><td class="desc">Global cooldown fallback (ms)</td></tr>
       </tbody>
     </table>
-    <p class="note">Enablement, mute, and volume are durable profile settings. Per-event toggles, custom sounds, and file names stay browser-local (<code>localStorage</code> + IndexedDB) and survive reloads.</p>
+    <p class="note">Enablement and volume are durable profile settings. Per-event toggles, custom sounds, and file names stay browser-local (<code>localStorage</code> + IndexedDB) and survive reloads.</p>
     <p class="note">The card shows the running version. Update is enabled only for confirmed npm profile dependencies; <code>link:</code> / <code>file:</code> installs display as development versions and keep Update disabled.</p>
   </div>
 </section>
@@ -322,7 +322,7 @@
     </details>
     <details>
       <summary>Where do I configure notification sounds and update the plugin?</summary>
-      <p>Open <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. It manages enablement, mute, volume, event toggles, custom sounds, and updates for npm-installed versions.</p>
+      <p>Open <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. It manages enablement, volume, event toggles, custom sounds, and updates for npm-installed versions.</p>
     </details>
     <details>
       <summary>Where are custom sounds stored?</summary>

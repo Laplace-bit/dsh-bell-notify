@@ -83,7 +83,7 @@ const defaultDelay = (ms: number) => new Promise<void>((resolve) => setTimeout(r
  * - AudioContext 惰性创建，规避浏览器自动播放策略下入口即挂起的问题；
  * - 创建/resume/渲染任一步失败即抛错，由调度器静默吞掉（R2 fail-open）；
  * - 一旦创建失败则标记不可用，后续直接短路，避免反复尝试的 CPU 浪费；
- * - muteAll 时播放直接短路（F4）。
+ * - 静音时播放直接短路（F4）。
  */
 export class WebAudioPlayer implements SoundPlayer {
   private masterVolume: number

@@ -93,7 +93,7 @@ maxConcurrent: 3       # simultaneous sounds (1 = serial, higher = more overlap)
 defaultCooldown: 1000  # global cooldown fallback (ms)
 ```
 
-Manage enablement, mute, and volume in **Settings → Plugins → Plugin configuration → Bell notifications**; those values are durable profile settings. Per-event toggles, custom sound replacements, and file names remain browser-local (`localStorage` + IndexedDB), apply immediately, and survive reloads.
+Manage enablement and volume in **Settings → Plugins → Plugin configuration → Bell notifications**; disabling notification sounds mutes everything. Those values are durable profile settings. Per-event toggles, custom sound replacements, and file names remain browser-local (`localStorage` + IndexedDB), apply immediately, and survive reloads.
 
 ### Version and updates
 
@@ -119,7 +119,7 @@ No. It's a community plugin for DeepSeek Harness (`dsh`), MIT-licensed, not part
 Most likely the browser autoplay policy — after the plugin loads you need to click the page once to unlock audio. After that, event sounds work normally.
 
 **Where do I configure notification sounds?**
-Open **Settings → Plugins → Plugin configuration → Bell notifications**. It manages enablement, mute, volume, event toggles, custom sounds, and updates for npm-installed versions.
+Open **Settings → Plugins → Plugin configuration → Bell notifications**. It manages enablement, volume, event toggles, custom sounds, and updates for npm-installed versions.
 
 **Where are custom sounds stored?**
 Bytes in browser IndexedDB, event-to-file mapping in `localStorage`. All local — nothing is uploaded anywhere.

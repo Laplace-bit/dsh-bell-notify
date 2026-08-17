@@ -173,7 +173,7 @@ export class BellNotifyCardController {
 }
 
 function pickSettings(view: BellSettingsView): BellSettings {
-  return { enabled: view.enabled, muteAll: view.muteAll, masterVolume: view.masterVolume }
+  return { enabled: view.enabled, masterVolume: view.masterVolume }
 }
 
 export type { BellSoundControlsState }

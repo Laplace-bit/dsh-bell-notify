@@ -311,7 +311,7 @@
 <section id="config">
   <div class="wrap">
     <h2>配置</h2>
-    <p class="lead">启用状态、静音、音量和每个铃声事件在 <strong>设置 → 插件 → 插件配置 → 铃声通知</strong> 中管理；下面是 profile 的常规运行参数：</p>
+    <p class="lead">启用状态、音量和每个铃声事件在 <strong>设置 → 插件 → 插件配置 → 铃声通知</strong> 中管理；关闭“启用提示音”即完全静音。下面是 profile 的常规运行参数：</p>
     <table class="tbl">
       <thead><tr><th>选项</th><th>默认</th><th>说明</th></tr></thead>
       <tbody>
@@ -320,7 +320,7 @@
         <tr><td><code>defaultCooldown</code></td><td><code>1000</code></td><td class="desc">规则默认节流窗口（毫秒）</td></tr>
       </tbody>
     </table>
-    <p class="note">启用状态、静音和音量持久化在当前 profile。每个事件的开关、自定义音源和文件名都持久化在浏览器本地（<code>localStorage</code> + IndexedDB），刷新不丢。</p>
+    <p class="note">启用状态和音量持久化在当前 profile。每个事件的开关、自定义音源和文件名都持久化在浏览器本地（<code>localStorage</code> + IndexedDB），刷新不丢。</p>
     <p class="note">卡片会显示运行版本。只有 profile 确认使用 npm 包时才启用更新；<code>link:</code> / <code>file:</code> 本地安装会显示为开发版本，并保持更新禁用。</p>
   </div>
 </section>
@@ -338,7 +338,7 @@
     </details>
     <details>
       <summary>在哪里配置提示音和更新插件？</summary>
-      <p>在 Web 设置的<strong>插件 → 插件配置 → 铃声通知</strong>中。这里可以管理启用状态、静音、音量、事件开关、自定义铃声，以及 npm 安装的更新。</p>
+      <p>在 Web 设置的<strong>插件 → 插件配置 → 铃声通知</strong>中。这里可以管理启用状态、音量、事件开关、自定义铃声，以及 npm 安装的更新。</p>
     </details>
     <details>
       <summary>自定义的声音存在哪？</summary>

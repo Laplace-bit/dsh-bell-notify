@@ -34,6 +34,11 @@ describe('readBootConfig', () => {
     expect(readBootConfig()).toBe(cfg)
   })
 
+  it('旧版 muteAll 配置折算为关闭提示音', () => {
+    g[BELL_BOOT_GLOBAL] = { ...DEFAULT_CONFIG, enabled: true, muteAll: true }
+    expect(readBootConfig()).toMatchObject({ enabled: false })
+  })
+
   it('缺少 maxConcurrent 时抛错（fail loud）', () => {
     const cfg = { ...DEFAULT_CONFIG }
     delete (cfg as Record<string, unknown>).maxConcurrent

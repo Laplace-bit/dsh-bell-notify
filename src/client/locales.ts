@@ -4,7 +4,7 @@ export const NS = 'settings.bellNotify'
 
 export type BellLocaleKey =
   | 'title' | 'description'
-  | 'enabled' | 'enabledHint' | 'muteAll' | 'muteAllHint' | 'masterVolume' | 'masterVolumeHint'
+  | 'enabled' | 'enabledHint' | 'masterVolume' | 'masterVolumeHint'
   | 'soundEvents' | 'soundEventsHint' | 'eventsUnavailable'
   | 'eventSessionStart' | 'eventAgentStart' | 'eventAgentThinking' | 'eventToolStart' | 'eventToolDone'
   | 'eventCommandStart' | 'eventCommandDone' | 'eventAgentWaiting' | 'eventAgentDone' | 'eventAgentIdle'
@@ -20,8 +20,6 @@ export const en: Record<BellLocaleKey, string> = {
   description: 'Lifecycle sounds and custom notification tones.',
   enabled: 'Enable notification sounds',
   enabledHint: 'Play sounds for enabled lifecycle events.',
-  muteAll: 'Mute all sounds',
-  muteAllHint: 'Keep event preferences without playing audio.',
   masterVolume: 'Volume',
   masterVolumeHint: 'Applies to built-in and custom sounds.',
   soundEvents: 'Sound events',
@@ -68,8 +66,6 @@ export const zh: Record<BellLocaleKey, string> = {
   description: 'Agent 生命周期提示音与自定义铃声。',
   enabled: '启用提示音',
   enabledHint: '为已启用的生命周期事件播放声音。',
-  muteAll: '静音全部声音',
-  muteAllHint: '保留事件偏好，但不播放音频。',
   masterVolume: '音量',
   masterVolumeHint: '同时作用于内置和自定义声音。',
   soundEvents: '铃声事件',

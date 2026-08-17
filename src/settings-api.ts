@@ -19,7 +19,6 @@ export interface BellSettingsView {
   installation: BellInstallationKind
   writable: boolean
   enabled: boolean
-  muteAll: boolean
   masterVolume: number
   canUpgrade: boolean
 }

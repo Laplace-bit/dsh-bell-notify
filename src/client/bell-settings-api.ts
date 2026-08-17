@@ -22,7 +22,6 @@ function settingsView(value: unknown): BellSettingsView {
     || !['npm', 'development', 'unmanaged'].includes(data.installation as string)
     || typeof data.writable !== 'boolean'
     || typeof data.enabled !== 'boolean'
-    || typeof data.muteAll !== 'boolean'
     || typeof data.masterVolume !== 'number'
     || !Number.isFinite(data.masterVolume)
     || data.masterVolume < 0

@@ -1,7 +1,7 @@
 import { EVENTS } from '../events'
 
 /**
- * 按事件维度的声音开关：弹窗渲染目录 + 默认种子。core 层零依赖，
+ * 按事件维度的声音开关：配置卡渲染目录 + 默认种子。core 层零依赖，
  * 持久化通过注入的 storage 完成（客户端默认 window.localStorage，测试注入 fake）。
  */
 
@@ -12,7 +12,7 @@ export interface ToggleEntry {
   defaultOn: boolean
 }
 
-/** 弹窗展示顺序即此数组顺序。默认只开「需要你行动 + 里程碑」三声，过程细节默认静默。 */
+/** 配置卡展示顺序即此数组顺序。默认只开「需要你行动 + 里程碑」三声，过程细节默认静默。 */
 export const TOGGLEABLE_EVENTS: readonly ToggleEntry[] = [
   { event: EVENTS.sessionStart, label: '会话启动', defaultOn: false },
   { event: EVENTS.agentStart, label: '开始执行', defaultOn: true },

@@ -25,7 +25,6 @@ const developmentView = {
   installation: 'development' as const,
   writable: true,
   enabled: true,
-  muteAll: false,
   masterVolume: 0.7,
   canUpgrade: false,
 }
@@ -193,7 +192,6 @@ describe('bell-notify settings card', () => {
       saving: false,
       failed: false,
       enabled: true,
-      muteAll: false,
       masterVolume: 0.7,
       version: '0.1.0',
       installation: 'npm' as const,
@@ -219,7 +217,7 @@ describe('bell-notify settings card', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /bell notifications/i }))
     fireEvent.click(screen.getByRole('checkbox', { name: /enable notification sounds/i }))
-    fireEvent.click(screen.getByRole('checkbox', { name: /mute all sounds/i }))
+    expect(screen.queryByRole('checkbox', { name: /mute all sounds/i })).toBeNull()
     fireEvent.change(screen.getByRole('slider', { name: en.masterVolume }), { target: { value: '35' } })
     fireEvent.click(screen.getByRole('checkbox', { name: en.eventAgentStart }))
     fireEvent.click(screen.getAllByRole('button', { name: en.preview })[0]!)
@@ -234,7 +232,6 @@ describe('bell-notify settings card', () => {
     fireEvent.click(screen.getByRole('button', { name: en.save }))
 
     expect(actions.edit).toHaveBeenCalledWith({ enabled: false })
-    expect(actions.edit).toHaveBeenCalledWith({ muteAll: true })
     expect(actions.edit).toHaveBeenCalledWith({ masterVolume: 0.35 })
     expect(actions.setSoundEnabled).toHaveBeenCalledWith('agent:start', false)
     expect(actions.previewDefaultSound).toHaveBeenCalledWith('agent:start')
@@ -263,15 +260,14 @@ describe('bell-notify settings card', () => {
     const face = cardFace(slots)
     await vi.waitFor(() => expect(face.hooks.bellNotifyCard.getSnapshot().status).toBe('ready'))
 
-    face.edit({ enabled: false, muteAll: true, masterVolume: 0.35 })
+    face.edit({ enabled: false, masterVolume: 0.35 })
     expect(face.hooks.bellNotifyCard.getSnapshot()).toMatchObject({ dirty: true, enabled: false, masterVolume: 0.35 })
     face.save()
     await vi.waitFor(() => expect(face.hooks.bellNotifyCard.getSnapshot()).toMatchObject({
-      dirty: false, enabled: false, muteAll: true, masterVolume: 0.35,
+      dirty: false, enabled: false, masterVolume: 0.35,
     }))
     expect(call).toHaveBeenCalledWith(BELL_SETTINGS_RPC_CHANNEL, BELL_SETTINGS_RPC.write, {
       enabled: false,
-      muteAll: true,
       masterVolume: 0.35,
     })
   })

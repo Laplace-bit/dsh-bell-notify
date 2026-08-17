@@ -122,7 +122,6 @@ class BellPreferencesCell {
 
 function sameSettings(left: BellSettings, right: BellSettings): boolean {
   return left.enabled === right.enabled
-    && left.muteAll === right.muteAll
     && left.masterVolume === right.masterVolume
 }
 
@@ -193,7 +192,7 @@ function setup(
   const applyPreferences = (): void => {
     currentPreferences = preferences.getSnapshot()
     player.setMasterVolume(currentPreferences.masterVolume)
-    player.setMuted(!currentPreferences.enabled || currentPreferences.muteAll)
+    player.setMuted(!currentPreferences.enabled)
   }
   applyPreferences()
   const offPreferences = preferences.subscribe(applyPreferences)
@@ -220,7 +219,7 @@ function setup(
 
     const rule = rules.get(event)
     if (!rule) return
-    if (currentPreferences.enabled && !currentPreferences.muteAll && rule.soundId && toggles.isEnabled(event)) {
+    if (currentPreferences.enabled && rule.soundId && toggles.isEnabled(event)) {
       const soundId = assignments.getKey(event) ?? rule.soundId
       scheduler.submit(soundId, { priority: rule.priority, cooldown: rule.cooldown })
     }

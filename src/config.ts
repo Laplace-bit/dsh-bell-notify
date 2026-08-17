@@ -13,8 +13,6 @@ export interface BellConfig {
   readonly enabled: boolean
   /** 0-1 master volume applied to every synthesized sound. */
   readonly masterVolume: number
-  /** Mute every notification sound without changing per-event preferences. */
-  readonly muteAll: boolean
   /** Bounded wait-queue capacity of the sound scheduler. */
   readonly maxQueue: number
   /** Max simultaneously-playing sounds (concurrency), 1 = serial. */
@@ -26,7 +24,6 @@ export interface BellConfig {
 export const DEFAULT_CONFIG: BellConfig = Object.freeze({
   enabled: true,
   masterVolume: 0.7,
-  muteAll: false,
   maxQueue: 8,
   maxConcurrent: 3,
   defaultCooldown: 1000,
@@ -44,10 +41,12 @@ export function readBootConfig(): BellConfig {
   if (
     typeof raw !== 'object' || raw === null
     || typeof (raw as BellConfig).enabled !== 'boolean'
-    || typeof (raw as BellConfig).muteAll !== 'boolean'
     || !num('masterVolume') || !num('maxQueue') || !num('maxConcurrent') || !num('defaultCooldown')
   ) {
     throw new Error(`[dsh-bell-notify] malformed ${BELL_BOOT_GLOBAL} boot global: ${JSON.stringify(raw)}`)
   }
-  return raw as BellConfig
+  const legacy = raw as BellConfig & { muteAll?: unknown }
+  // Preserve the behaviour of a pre-settings-card profile that still ships
+  // the retired mute flag in its boot config.
+  return legacy.muteAll === true ? { ...legacy, enabled: false } : legacy
 }
