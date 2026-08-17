@@ -6,17 +6,17 @@ const DEFAULT_COOLDOWN = 1000
 
 /** 预置规则表：事件均为浏览器侧可从会话快照推导的生命周期信号。 */
 export const DEFAULT_RULE_INPUTS: readonly EventRuleInput[] = [
-  { event: EVENTS.sessionStart, soundId: 'startup', uiStatus: 'idle', priority: 6, cooldown: 3000 },
-  { event: EVENTS.agentStart, soundId: 'click', uiStatus: 'working', priority: 3, cooldown: 500 },
-  { event: EVENTS.agentThinking, soundId: 'notify', uiStatus: 'thinking', priority: 3, cooldown: 500 },
+  { event: EVENTS.sessionStart, soundId: 'startup', priority: 6, cooldown: 3000 },
+  { event: EVENTS.agentStart, soundId: 'click', priority: 3, cooldown: 500 },
+  { event: EVENTS.agentThinking, soundId: 'notify', priority: 3, cooldown: 500 },
   { event: EVENTS.agentThinkingDone, priority: 3, cooldown: 0 },
-  { event: EVENTS.toolStart, soundId: 'tick', uiStatus: 'working', priority: 3, cooldown: 300 },
+  { event: EVENTS.toolStart, soundId: 'tick', priority: 3, cooldown: 300 },
   { event: EVENTS.toolDone, soundId: 'drop', priority: 4, cooldown: 0 },
-  { event: EVENTS.commandStart, soundId: 'beep', uiStatus: 'working', priority: 3, cooldown: 500 },
+  { event: EVENTS.commandStart, soundId: 'beep', priority: 3, cooldown: 500 },
   { event: EVENTS.commandDone, soundId: 'rise', priority: 4, cooldown: 0 },
-  { event: EVENTS.agentWaiting, soundId: 'alert', uiStatus: 'waiting', priority: 8 },
-  { event: EVENTS.agentDone, soundId: 'success', uiStatus: 'success', priority: 7, cooldown: 3000 },
-  { event: EVENTS.agentIdle, soundId: 'confirm', uiStatus: 'idle', priority: 4 },
+  { event: EVENTS.agentWaiting, soundId: 'alert', priority: 8 },
+  { event: EVENTS.agentDone, soundId: 'success', priority: 7, cooldown: 3000 },
+  { event: EVENTS.agentIdle, soundId: 'confirm', priority: 4 },
 ]
 
 export interface RuleTableOptions {
@@ -26,7 +26,7 @@ export interface RuleTableOptions {
 
 /**
  * 按事件名将用户规则逐字段覆盖合并到默认表（用户只需写要改的字段）。
- * `soundId: null` / `uiStatus: null` 用于显式关闭。
+ * `soundId: null` 用于显式关闭声音。
  */
 export function mergeRuleInputs(
   user: readonly EventRuleInput[] = [],
@@ -55,7 +55,6 @@ export class RuleTable {
       const resolved: ResolvedRule = {
         event: input.event,
         ...(input.soundId != null ? { soundId: input.soundId } : {}),
-        ...(input.uiStatus != null ? { uiStatus: input.uiStatus } : {}),
         priority: input.priority ?? defaultPriority,
         cooldown: input.cooldown ?? defaultCooldown,
       }

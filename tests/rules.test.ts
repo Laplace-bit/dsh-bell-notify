@@ -8,7 +8,6 @@ describe('RuleTable 默认表', () => {
 
     const waiting = table.get('agent:waiting')!
     expect(waiting.soundId).toBe('alert')
-    expect(waiting.uiStatus).toBe('waiting')
     expect(waiting.priority).toBe(8)
     expect(waiting.cooldown).toBe(1000)
 
@@ -23,36 +22,29 @@ describe('RuleTable 默认表', () => {
 
     const thinking = table.get('agent:thinking')!
     expect(thinking.soundId).toBe('notify')
-    expect(thinking.uiStatus).toBe('thinking')
     expect(thinking.cooldown).toBe(500)
 
     const thinkingDone = table.get('agent:thinking:done')!
     expect(thinkingDone.soundId).toBeUndefined()
-    expect(thinkingDone.uiStatus).toBeUndefined()
 
     const toolStart = table.get('tool:start')!
     expect(toolStart.soundId).toBe('tick')
-    expect(toolStart.uiStatus).toBe('working')
     expect(toolStart.cooldown).toBe(300)
 
     const toolDone = table.get('tool:done')!
     expect(toolDone.soundId).toBe('drop')
-    expect(toolDone.uiStatus).toBeUndefined()
     expect(toolDone.cooldown).toBe(0)
 
     const commandStart = table.get('command:start')!
     expect(commandStart.soundId).toBe('beep')
-    expect(commandStart.uiStatus).toBe('working')
 
     const commandDone = table.get('command:done')!
     expect(commandDone.soundId).toBe('rise')
-    expect(commandDone.uiStatus).toBeUndefined()
   })
 
   it('agent:start 使用规则级冷却与低优先级', () => {
     const rule = new RuleTable().get('agent:start')!
     expect(rule.soundId).toBe('click')
-    expect(rule.uiStatus).toBe('working')
     expect(rule.cooldown).toBe(500)
     expect(rule.priority).toBe(3)
   })
@@ -82,7 +74,6 @@ describe('mergeRuleInputs 配置合并', () => {
     const merged = mergeRuleInputs([{ event: 'agent:start', cooldown: 200, priority: 1 }])
     const rule = new RuleTable(merged).get('agent:start')!
     expect(rule.soundId).toBe('click')
-    expect(rule.uiStatus).toBe('working')
     expect(rule.cooldown).toBe(200)
     expect(rule.priority).toBe(1)
   })
@@ -91,14 +82,6 @@ describe('mergeRuleInputs 配置合并', () => {
     const merged = mergeRuleInputs([{ event: 'agent:start', soundId: null }])
     const rule = new RuleTable(merged).get('agent:start')!
     expect(rule.soundId).toBeUndefined()
-    expect(rule.uiStatus).toBe('working')
-  })
-
-  it('uiStatus: null 显式关闭状态切换', () => {
-    const merged = mergeRuleInputs([{ event: 'agent:done', uiStatus: null }])
-    const rule = new RuleTable(merged).get('agent:done')!
-    expect(rule.uiStatus).toBeUndefined()
-    expect(rule.soundId).toBe('success')
   })
 
   it('新增默认表中不存在的自定义事件', () => {

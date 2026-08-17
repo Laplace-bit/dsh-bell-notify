@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dsh-bell-notify 🔔 — Lifecycle bells & status for DeepSeek Harness | Web Audio synthesis</title>
+  <title>dsh-bell-notify 🔔 — Lifecycle notifications for DeepSeek Harness | Web Audio synthesis</title>
 
   <!-- SEO -->
-  <meta name="description" content="dsh-bell-notify is a community plugin for DeepSeek Harness (dsh): a distinct bell for every lifecycle event plus a breathing status dot. Zero audio files — all bells are synthesized in real time with the Web Audio API, and every event can be swapped for your own sound. MIT licensed." />
-  <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, notification, sound, Web Audio, lifecycle, cordis, deepseek plugin, status indicator" />
+  <meta name="description" content="dsh-bell-notify is a community plugin for DeepSeek Harness (dsh): customizable bell notifications for Agent lifecycle events. Zero audio files — all bells are synthesized in real time with the Web Audio API and can be replaced with your own sound. MIT licensed." />
+  <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, notification, sound, Web Audio, lifecycle, cordis, deepseek plugin" />
   <meta name="author" content="Laplace-bit" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://laplace-bit.github.io/dsh-bell-notify/en.html" />
@@ -15,20 +15,15 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="dsh-bell-notify" />
-  <meta property="og:title" content="dsh-bell-notify 🔔 — Lifecycle bells & status for DeepSeek Harness" />
-  <meta property="og:description" content="Customizable bell notifications for DeepSeek Harness: a distinct, swappable sound for every lifecycle event plus a breathing status dot. Zero audio files, real-time Web Audio synthesis, MIT licensed." />
+  <meta property="og:title" content="dsh-bell-notify 🔔 — Lifecycle notifications for DeepSeek Harness" />
+  <meta property="og:description" content="Customizable bell notifications for DeepSeek Harness: a distinct, swappable sound for every lifecycle event. Zero audio files, real-time Web Audio synthesis, MIT licensed." />
   <meta property="og:url" content="https://laplace-bit.github.io/dsh-bell-notify/en.html" />
-  <meta property="og:image" content="https://laplace-bit.github.io/dsh-bell-notify/screenshot.jpg" />
-  <meta property="og:image:width" content="1280" />
-  <meta property="og:image:height" content="764" />
-  <meta property="og:image:alt" content="dsh-bell-notify running screenshot" />
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="dsh-bell-notify 🔔 — Lifecycle bells & status for DeepSeek Harness" />
-  <meta name="twitter:description" content="Customizable bell notifications for every lifecycle event + a breathing status dot. Real-time Web Audio, zero audio files, MIT licensed." />
-  <meta name="twitter:image" content="https://laplace-bit.github.io/dsh-bell-notify/screenshot.jpg" />
+  <meta name="twitter:title" content="dsh-bell-notify 🔔 — Lifecycle notifications for DeepSeek Harness" />
+  <meta name="twitter:description" content="Customizable bell notifications for every lifecycle event. Real-time Web Audio, zero audio files, MIT licensed." />
 
   <!-- Structured data -->
   <script type="application/ld+json">
@@ -37,7 +32,7 @@
     "@type": "SoftwareSourceCode",
     "name": "dsh-bell-notify",
     "alternateName": "bell-notify",
-    "description": "Community plugin for DeepSeek Harness (dsh): lifecycle bells and status indicator for your agent. Zero audio files — all bells are synthesized in real time with the Web Audio API.",
+    "description": "Community plugin for DeepSeek Harness (dsh): lifecycle bell notifications for your agent. Zero audio files — all bells are synthesized in real time with the Web Audio API.",
     "programmingLanguage": "TypeScript",
     "codeRepository": "https://github.com/Laplace-bit/dsh-bell-notify",
     "license": "https://github.com/Laplace-bit/dsh-bell-notify/blob/main/LICENSE",
@@ -147,34 +142,6 @@
     .card h3 { margin: 0 0 8px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
     .card p { margin: 0; color: var(--muted); font-size: 14px; }
 
-    .dot-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 24px; }
-    .dot-item { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-    .dot {
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--blue, #5aa2e6); position: relative;
-    }
-    .dot.pulse { animation: pulse 1.2s ease-out infinite; }
-    .dot.rhythm { background: var(--orange); animation: rhythm 1s ease-in-out infinite; }
-    .dot.blink { background: var(--yellow, #e6c35a); animation: blink 1s steps(2, start) infinite; }
-    .dot.ripple { background: var(--green, #5fc477); animation: ripple 1.4s ease-out infinite; }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(90, 162, 230, .5); }
-      70% { box-shadow: 0 0 0 12px rgba(90, 162, 230, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(90, 162, 230, 0); }
-    }
-    @keyframes rhythm {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.5); }
-    }
-    @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: .2; }
-    }
-    @keyframes ripple {
-      0% { box-shadow: 0 0 0 0 rgba(95, 196, 119, .55); }
-      100% { box-shadow: 0 0 0 14px rgba(95, 196, 119, 0); }
-    }
-
     .demo-tip {
       background: rgba(90, 162, 230, .08); border: 1px solid rgba(90, 162, 230, .3);
       color: #bcd4ee; padding: 10px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px;
@@ -246,7 +213,7 @@
   <div class="wrap">
     <span class="kicker">Community plugin for DeepSeek Harness · MIT</span>
     <h1>Customizable bell notifications for your Agent</h1>
-    <p class="sub">A distinct bell for every lifecycle event, plus a breathing status dot that tells you what your Agent is up to. No audio files — every bell is <b>synthesized in real time with the Web Audio API</b>, and each event can be swapped for your own sound.</p>
+    <p class="sub">A distinct bell for every lifecycle event. No audio files — every bell is <b>synthesized in real time with the Web Audio API</b>, and each event can be customized from Plugin configuration.</p>
     <div class="cta">
       <a class="btn primary" href="#demo">▶ Hear every bell live</a>
       <a class="btn" href="#install">Install the plugin</a>
@@ -255,17 +222,10 @@
   </div>
 </header>
 
-<section id="screenshot">
-  <div class="wrap shot-box">
-    <img src="./screenshot.jpg" alt="dsh-bell-notify — bells and status dot in the corner of a dsh session" width="1280" height="764" loading="lazy" />
-    <p class="shot-caption">In the corner: the breathing status dot. Every step: its own bell.</p>
-  </div>
-</section>
-
 <section id="features">
   <div class="wrap">
     <h2>What it does</h2>
-    <p class="lead">One small plugin, three small things: distinct bells, your own sounds, and a breathing status dot.</p>
+    <p class="lead">One small plugin, two kinds of control: distinct bells and your own sounds.</p>
     <div class="grid">
       <div class="card">
         <h3>🎵 A distinct bell for every step</h3>
@@ -273,7 +233,7 @@
       </div>
       <div class="card">
         <h3>🎛️ Swap in your own sounds</h3>
-        <p>Click the little dot: preview, upload your own audio file, or reset to default. Your replacement sticks and survives reload.</p>
+        <p>Use Plugin configuration to preview, upload your own audio file, or reset to default. Your replacement sticks and survives reload.</p>
       </div>
       <div class="card">
         <h3>🎼 Sounds that are "alive"</h3>
@@ -281,14 +241,6 @@
       </div>
     </div>
 
-    <h2 style="margin-top:44px">🔴 A status dot that "breathes"</h2>
-    <p class="lead">It doesn't interrupt, doesn't pop up, doesn't add text — it just quietly keeps you company.</p>
-    <div class="dot-row">
-      <div class="dot-item"><div class="dot pulse"></div>🔵 Blue pulse · thinking</div>
-      <div class="dot-item"><div class="dot rhythm"></div>🟠 Orange rhythm · working (tools/commands)</div>
-      <div class="dot-item"><div class="dot blink"></div>🟡 Yellow blink · waiting on you</div>
-      <div class="dot-item"><div class="dot ripple"></div>🟢 Green ripple · this turn ended nicely</div>
-    </div>
   </div>
 </section>
 
@@ -306,13 +258,12 @@
   <div class="wrap">
     <h2>Install</h2>
     <p class="lead">From a DeepSeek Harness source checkout:</p>
-    <pre>pnpm dsh plugin --profile bell add <span class="cm">github:Laplace-bit/dsh-bell-notify</span></pre>
+    <pre>pnpm dsh plugin --profile bell add <span class="cm">dsh-bell-notify</span></pre>
     <p class="lead">If <code>dsh</code> is already on your <code>PATH</code>:</p>
-    <pre>dsh plugin --profile bell add <span class="cm">github:Laplace-bit/dsh-bell-notify</span></pre>
-    <p class="note">The first <code>add</code> is expected to fail: git install has to run the <code>prepare</code> script, and pnpm ≥10 blocks it until you allow it. Open <code>~/.dsh/profiles/bell/pnpm-workspace.yaml</code>, add the <code>onlyBuiltDependencies</code> snippet pnpm printed, then run the same <code>add</code> again.</p>
+    <pre>dsh plugin --profile bell add <span class="cm">dsh-bell-notify</span></pre>
     <p class="lead">Start it:</p>
     <pre>pnpm dsh --profile bell</pre>
-    <p class="note">Open the page, <strong>click anywhere once</strong> (browser autoplay policy unlocks audio), then run any task — the sounds and the dot come alive together.</p>
+    <p class="note">Open the page, <strong>click anywhere once</strong> (browser autoplay policy unlocks audio), then run any task to hear notification sounds.</p>
     <p class="lead">Remove it:</p>
     <pre>pnpm dsh plugin --profile bell remove dsh-bell-notify</pre>
   </div>
@@ -344,21 +295,17 @@
 <section id="config">
   <div class="wrap">
     <h2>Configuration</h2>
-    <p class="lead">Edit the profile's <code>cordis.patch.yml</code> (Cordis validates and fills defaults at load):</p>
+    <p class="lead">Manage enablement, mute, volume, and every sound event in <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. These are the profile's regular runtime parameters:</p>
     <table class="tbl">
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><code>enabled</code></td><td><code>true</code></td><td class="desc">Master switch</td></tr>
-        <tr><td><code>masterVolume</code></td><td><code>0.7</code></td><td class="desc">Master volume 0-1</td></tr>
-        <tr><td><code>muteAll</code></td><td><code>false</code></td><td class="desc">Mute, but the dot keeps working</td></tr>
         <tr><td><code>maxQueue</code></td><td><code>8</code></td><td class="desc">Wait-queue capacity</td></tr>
         <tr><td><code>maxConcurrent</code></td><td><code>3</code></td><td class="desc">Simultaneous sounds (1 = serial)</td></tr>
         <tr><td><code>defaultCooldown</code></td><td><code>1000</code></td><td class="desc">Global cooldown fallback (ms)</td></tr>
-        <tr><td><code>statusRevertMs</code></td><td><code>1000</code></td><td class="desc">Transient status auto-revert (ms)</td></tr>
-        <tr><td><code>showStatusIndicator</code></td><td><code>true</code></td><td class="desc">Show the corner status dot</td></tr>
       </tbody>
     </table>
-    <p class="note">Sound toggles and custom-sound replacements live in browser local storage (<code>localStorage</code> + IndexedDB) — click the dot to change them, applied instantly and kept across reloads.</p>
+    <p class="note">Enablement, mute, and volume are durable profile settings. Per-event toggles, custom sounds, and file names stay browser-local (<code>localStorage</code> + IndexedDB) and survive reloads.</p>
+    <p class="note">The card shows the running version. Update is enabled only for confirmed npm profile dependencies; <code>link:</code> / <code>file:</code> installs display as development versions and keep Update disabled.</p>
   </div>
 </section>
 
@@ -374,8 +321,8 @@
       <p>Most likely the browser autoplay policy — after the plugin loads you need to click the page once to unlock audio.</p>
     </details>
     <details>
-      <summary>Can I keep the sounds and drop the dot?</summary>
-      <p>Yes. Set <code>showStatusIndicator: false</code>; sounds keep working.</p>
+      <summary>Where do I configure notification sounds and update the plugin?</summary>
+      <p>Open <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. It manages enablement, mute, volume, event toggles, custom sounds, and updates for npm-installed versions.</p>
     </details>
     <details>
       <summary>Where are custom sounds stored?</summary>

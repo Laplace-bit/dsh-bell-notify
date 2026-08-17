@@ -1,12 +1,9 @@
-export type AgentStatus = 'idle' | 'thinking' | 'working' | 'waiting' | 'success' | 'error'
-
 export type Wave = 'sine' | 'square' | 'triangle' | 'sawtooth'
 
-/** 配置层规则输入；`null` 表示显式关闭该字段（如禁用某个声音）。 */
+/** 配置层规则输入；`soundId: null` 表示显式关闭声音。 */
 export interface EventRuleInput {
   event: string
   soundId?: string | null
-  uiStatus?: AgentStatus | null
   priority?: number
   cooldown?: number
 }
@@ -15,7 +12,6 @@ export interface EventRuleInput {
 export interface ResolvedRule {
   readonly event: string
   readonly soundId?: string
-  readonly uiStatus?: AgentStatus
   readonly priority: number
   readonly cooldown: number
 }

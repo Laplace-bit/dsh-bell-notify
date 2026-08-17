@@ -13,7 +13,7 @@ export interface BellConfig {
   readonly enabled: boolean
   /** 0-1 master volume applied to every synthesized sound. */
   readonly masterVolume: number
-  /** Mute sounds; the status indicator keeps working. */
+  /** Mute every notification sound without changing per-event preferences. */
   readonly muteAll: boolean
   /** Bounded wait-queue capacity of the sound scheduler. */
   readonly maxQueue: number
@@ -21,10 +21,6 @@ export interface BellConfig {
   readonly maxConcurrent: number
   /** Global fallback cooldown (ms) for rules without their own. */
   readonly defaultCooldown: number
-  /** Transient status (success/error) auto-revert delay (ms). */
-  readonly statusRevertMs: number
-  /** Show the floating status dot in the Web UI. */
-  readonly showStatusIndicator: boolean
 }
 
 export const DEFAULT_CONFIG: BellConfig = Object.freeze({
@@ -34,8 +30,6 @@ export const DEFAULT_CONFIG: BellConfig = Object.freeze({
   maxQueue: 8,
   maxConcurrent: 3,
   defaultCooldown: 1000,
-  statusRevertMs: 1000,
-  showStatusIndicator: true,
 })
 
 /** Structural guard for the Host-bridged boot global (fails loud, not half-configured). */
@@ -51,8 +45,7 @@ export function readBootConfig(): BellConfig {
     typeof raw !== 'object' || raw === null
     || typeof (raw as BellConfig).enabled !== 'boolean'
     || typeof (raw as BellConfig).muteAll !== 'boolean'
-    || typeof (raw as BellConfig).showStatusIndicator !== 'boolean'
-    || !num('masterVolume') || !num('maxQueue') || !num('maxConcurrent') || !num('defaultCooldown') || !num('statusRevertMs')
+    || !num('masterVolume') || !num('maxQueue') || !num('maxConcurrent') || !num('defaultCooldown')
   ) {
     throw new Error(`[dsh-bell-notify] malformed ${BELL_BOOT_GLOBAL} boot global: ${JSON.stringify(raw)}`)
   }

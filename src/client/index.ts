@@ -1,8 +1,7 @@
 /**
  * Browser half of dsh-bell-notify.
  *
- * Two signal sources feed one event pipeline (rule table → sound scheduler →
- * status machine):
+ * Two signal sources feed one event pipeline (rule table → sound scheduler):
  *
  * 1. List snapshot (ObservableSnapshot over SessionListState): coarse-grained
  *    lifecycle — session/agent start, waiting, done, idle — diffed across all
@@ -22,22 +21,28 @@
  * touches the host runtime.
  */
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
-import { readBootConfig } from '../config.ts'
+import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type { ConnectionHandle } from '@deepseek-ai/dsh-client-connection/client'
+import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
+import { DEFAULT_CONFIG, readBootConfig, type BellConfig } from '../config.ts'
 import { EVENTS } from '../events.ts'
 import { RuleTable } from '../core/rules.ts'
 import { SoundScheduler } from '../core/scheduler.ts'
-import { StatusMachine } from '../core/state.ts'
 import { SoundToggles, TOGGLEABLE_EVENTS } from '../core/toggles.ts'
-import { SoundAssignments, CUSTOM_SOUND_PREFIX } from '../core/sound-assignments.ts'
+import { SoundAssignments } from '../core/sound-assignments.ts'
 import { LIFECYCLE_STOPS } from '../core/lifecycle.ts'
 import { diffConversation, toConversationSignal, type ConversationSignal } from '../core/conversation-diff.ts'
-import type { AgentStatus } from '../core/types.ts'
 import { WebAudioPlayer } from '../platform/audio.ts'
-import { StatusDot, SettingsPopup } from '../platform/indicator.ts'
 import { createIndexedDbSoundStorage } from '../platform/sound-store.ts'
+import { BellNotifyCard } from './BellNotifyCard.tsx'
+import { BellNotifyCardController } from './bell-card-controller.ts'
+import { createBellSettingsApi } from './bell-settings-api.ts'
+import { BellSoundControlsCell, createBellSoundControls } from './bell-sound-controls.ts'
+import { NS as SETTINGS_NS, en, zh } from './locales.ts'
+import { bellSettingsDefaults, type BellSettings } from '../settings.ts'
 
-/** Cordis services required by the browser half. */
-export const inject = ['sessions']
+/** The card stays available even while the optional sessions service reconnects. */
+export const inject: string[] = []
 
 /** Minimal structural face of the sessions list store (duck-typed at runtime). */
 interface SessionSummaryLike {
@@ -78,42 +83,127 @@ interface SessionSignal {
   pending: string | undefined
 }
 
-export function apply(ctx: ClientContext): void {
-  if (typeof window === 'undefined') return
-  let config
-  try {
-    config = readBootConfig()
-  } catch (error) {
-    console.warn('[dsh-bell-notify] disabled:', error)
-    return
+/** Publishes only Host-accepted preferences to the live audio runtime. */
+class BellPreferencesCell {
+  private readonly listeners = new Set<() => void>()
+  private controller: BellNotifyCardController | undefined
+  private value: BellSettings
+
+  constructor(defaults: BellSettings) {
+    this.value = defaults
   }
-  if (!config.enabled) return
-  const sessions = (ctx as unknown as { sessions?: SessionsServiceLike }).sessions
-  if (sessions?.list === undefined) {
-    console.warn('[dsh-bell-notify] sessions service unavailable; plugin inactive')
-    return
+
+  attach(controller: BellNotifyCardController): () => void {
+    this.controller = controller
+    this.refresh()
+    const unsubscribe = controller.subscribe(() => { this.refresh() })
+    return () => {
+      unsubscribe()
+      if (this.controller !== controller) return
+      this.controller = undefined
+      this.refresh()
+    }
   }
-  try {
-    const teardown = setup(config, sessions)
-    ctx.effect(() => teardown, 'dsh-bell-notify: client teardown')
-  } catch (error) {
-    console.warn('[dsh-bell-notify] setup failed:', error)
+
+  getSnapshot = (): BellSettings => this.value
+
+  subscribe = (listener: () => void): (() => void) => {
+    this.listeners.add(listener)
+    return () => { this.listeners.delete(listener) }
+  }
+
+  private refresh(): void {
+    const next = this.controller?.getAppliedSettings() ?? this.value
+    if (sameSettings(next, this.value)) return
+    this.value = next
+    for (const listener of [...this.listeners]) listener()
   }
 }
 
-function setup(config: ReturnType<typeof readBootConfig>, sessions: SessionsServiceLike): () => void {
+function sameSettings(left: BellSettings, right: BellSettings): boolean {
+  return left.enabled === right.enabled
+    && left.muteAll === right.muteAll
+    && left.masterVolume === right.masterVolume
+}
+
+export function apply(ctx: ClientContext): void {
+  if (typeof window === 'undefined') return
+  let runtimeConfig: BellConfig | undefined
+  try {
+    runtimeConfig = readBootConfig()
+  } catch (error) {
+    // The card can still read and repair its own durable settings through the
+    // protected RPC. Avoid starting audio with an untrusted Host snapshot.
+    console.warn('[dsh-bell-notify] audio runtime disabled by malformed boot config:', error)
+  }
+  const cardDefaults = bellSettingsDefaults(runtimeConfig ?? DEFAULT_CONFIG)
+  const preferences = new BellPreferencesCell(cardDefaults)
+  const soundControls = new BellSoundControlsCell()
+
+  // This card deliberately uses our loopback RPC rather than the core
+  // settings.describe endpoint, whose third-party namespace allowlist would
+  // otherwise hide a successfully loaded plugin.
+  ctx.inject(['slots', 'locale', 'connection'], (settingsCtx) => {
+    const card = new BellNotifyCardController(
+      createBellSettingsApi(settingsCtx.get('connection') as unknown as ConnectionHandle),
+      soundControls,
+      cardDefaults,
+    )
+    const detachPreferences = preferences.attach(card)
+    card.start()
+    settingsCtx.effect(() => settingsCtx.locale.register(SETTINGS_NS, { zh, en }), 'dsh-bell-notify: settings dictionaries')
+    settingsCtx.slots.inject('settings.plugin.item', () => settingsCtx.slots.register({
+      name: 'settings.plugin.item',
+      id: 'bell-notify',
+      order: 40,
+      locale: SETTINGS_NS,
+      inject: () => card.inject(),
+    }, BellNotifyCard))
+    return () => {
+      card.stop()
+      detachPreferences()
+    }
+  })
+
+  ctx.inject(['sessions'], (sessionsCtx) => {
+    if (runtimeConfig === undefined) return
+    const sessions = (sessionsCtx as unknown as { sessions?: SessionsServiceLike }).sessions
+    if (sessions?.list === undefined) {
+      console.warn('[dsh-bell-notify] sessions service unavailable; audio runtime inactive')
+      return
+    }
+    try {
+      return setup(runtimeConfig, sessions, preferences, soundControls)
+    } catch (error) {
+      console.warn('[dsh-bell-notify] setup failed:', error)
+      return
+    }
+  })
+}
+
+function setup(
+  config: ReturnType<typeof readBootConfig>,
+  sessions: SessionsServiceLike,
+  preferences: BellPreferencesCell,
+  soundControls: BellSoundControlsCell,
+): () => void {
   const list = sessions.list as SessionsListFace
   const player = new WebAudioPlayer({ masterVolume: config.masterVolume })
-  player.setMuted(config.muteAll)
+  let currentPreferences = preferences.getSnapshot()
+  const applyPreferences = (): void => {
+    currentPreferences = preferences.getSnapshot()
+    player.setMasterVolume(currentPreferences.masterVolume)
+    player.setMuted(!currentPreferences.enabled || currentPreferences.muteAll)
+  }
+  applyPreferences()
+  const offPreferences = preferences.subscribe(applyPreferences)
   const scheduler = new SoundScheduler({ player, maxQueue: config.maxQueue, maxConcurrent: config.maxConcurrent })
-  const machine = new StatusMachine({ revertMs: config.statusRevertMs })
   const rules = new RuleTable(undefined, { defaultCooldown: config.defaultCooldown })
   const toggles = new SoundToggles()
   const assignments = new SoundAssignments()
   const soundStore = createIndexedDbSoundStorage()
-
-  const dot = config.showStatusIndicator ? StatusDot.mount() : null
-  let offAssignments: (() => void) | null = null
+  const controls = createBellSoundControls({ toggles, assignments, rules, scheduler, player, soundStore })
+  const detachControls = soundControls.attach(controls)
 
   const emit = (event: string): void => {
     // 生命周期配对：结束事件先停掉对应开始事件的残留声音（同步、不阻塞），
@@ -130,79 +220,10 @@ function setup(config: ReturnType<typeof readBootConfig>, sessions: SessionsServ
 
     const rule = rules.get(event)
     if (!rule) return
-    if (rule.soundId && toggles.isEnabled(event)) {
+    if (currentPreferences.enabled && !currentPreferences.muteAll && rule.soundId && toggles.isEnabled(event)) {
       const soundId = assignments.getKey(event) ?? rule.soundId
       scheduler.submit(soundId, { priority: rule.priority, cooldown: rule.cooldown })
     }
-    if (rule.uiStatus) machine.set(rule.uiStatus)
-  }
-
-  const preview = (soundId: string): void => {
-    scheduler.submit(soundId, { priority: 9, cooldown: 0 })
-  }
-
-  const popup = config.showStatusIndicator
-    ? SettingsPopup.mount(TOGGLEABLE_EVENTS, {
-        onToggle: (event, on) => toggles.set(event, on),
-        onPreviewDefault: (event) => {
-          const rule = rules.get(event)
-          if (rule?.soundId) preview(rule.soundId)
-        },
-        onPreviewCustom: (event) => {
-          const key = assignments.getKey(event)
-          if (key) preview(key)
-        },
-        onUpload: (event, file) => {
-          if (soundStore === null) {
-            console.warn('[dsh-bell-notify] IndexedDB unavailable; custom sound not saved')
-            return
-          }
-          const key = `${CUSTOM_SOUND_PREFIX}${event.replace(/[^a-zA-Z0-9-]/g, '_')}`
-          void (async () => {
-            try {
-              await player.registerCustomSound(key, file)
-              await soundStore.put(key, file)
-              assignments.set(event, key, file.name || undefined)
-            } catch (error) {
-              console.warn('[dsh-bell-notify] upload custom sound failed:', error)
-            }
-          })()
-        },
-        onReset: (event) => {
-          const key = assignments.getKey(event)
-          if (!key) return
-          player.unregisterCustomSound(key)
-          assignments.set(event, null)
-          if (soundStore !== null) void soundStore.remove(key).catch(() => {})
-        },
-      })
-    : null
-
-  if (dot !== null && popup !== null) {
-    dot.onClick = () => popup.toggle()
-  }
-
-  const offStatus = machine.subscribe((status: AgentStatus) => {
-    try {
-      dot?.update(status)
-    } catch {
-      /* visual failure never stops audio */
-    }
-  })
-  dot?.update(machine.status)
-
-  // 同步弹窗初始开关显示与自定义来源标注（含文件名）。
-  if (popup !== null) {
-    const syncRowSource = (): void => {
-      for (const entry of TOGGLEABLE_EVENTS) {
-        popup.setRowSource(entry.event, assignments.isCustom(entry.event), assignments.getName(entry.event))
-      }
-    }
-    for (const entry of TOGGLEABLE_EVENTS) {
-      popup.setRowEnabled(entry.event, toggles.isEnabled(entry.event))
-    }
-    syncRowSource()
-    offAssignments = assignments.subscribe(syncRowSource)
   }
 
   // 启动时加载既有自定义音源并解码注册（幂等；解码失败静默跳过，保留分配）。
@@ -314,14 +335,12 @@ function setup(config: ReturnType<typeof readBootConfig>, sessions: SessionsServ
 
   return () => {
     offList()
-    offStatus()
+    offPreferences()
     unsubscribeConversation()
-    offAssignments?.()
-    popup?.unmount()
-    dot?.unmount()
+    detachControls()
+    controls.dispose()
     assignments.dispose()
     toggles.dispose()
-    machine.dispose()
     scheduler.dispose()
     void player.dispose()
   }

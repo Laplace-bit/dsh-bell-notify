@@ -6,8 +6,8 @@
   <title>dsh-bell-notify 🔔 — DeepSeek Harness 生命周期铃声插件 | Web Audio 实时合成</title>
 
   <!-- SEO -->
-  <meta name="description" content="dsh-bell-notify 是 DeepSeek Harness（dsh）的社区插件：为 Agent 的每个生命周期环节配上专属铃声与呼吸状态点。零音频文件，全部铃声由 Web Audio 实时合成，支持替换成你自己的声音。MIT 开源。" />
-  <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, 铃声, 通知音效, Web Audio, 生命周期, cordis, deepseek 插件, 状态指示器" />
+  <meta name="description" content="dsh-bell-notify 是 DeepSeek Harness（dsh）的社区插件：为 Agent 生命周期事件提供可自定义的铃声通知。零音频文件，全部铃声由 Web Audio 实时合成，支持替换成自己的声音。MIT 开源。" />
+  <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, 铃声, 通知音效, Web Audio, 生命周期, cordis, deepseek 插件" />
   <meta name="author" content="Laplace-bit" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://laplace-bit.github.io/dsh-bell-notify/" />
@@ -16,20 +16,15 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="dsh-bell-notify" />
   <meta property="og:title" content="dsh-bell-notify 🔔 — DeepSeek Harness 生命周期铃声插件" />
-  <meta property="og:description" content="可自定义的 Agent 生命周期铃声通知：启动、思考、工具调用、等待确认，每个环节都有一声提示音，可换成你自己的音频；右下角还有会呼吸的状态点。零音频文件，Web Audio 实时合成，MIT 开源。" />
+  <meta property="og:description" content="可自定义的 Agent 生命周期铃声通知：启动、思考、工具调用、等待确认，每个环节都有一声提示音，可换成自己的音频。零音频文件，Web Audio 实时合成，MIT 开源。" />
   <meta property="og:url" content="https://laplace-bit.github.io/dsh-bell-notify/" />
-  <meta property="og:image" content="https://laplace-bit.github.io/dsh-bell-notify/screenshot.jpg" />
-  <meta property="og:image:width" content="1280" />
-  <meta property="og:image:height" content="764" />
-  <meta property="og:image:alt" content="dsh-bell-notify 运行截图" />
   <meta property="og:locale" content="zh_CN" />
   <meta property="og:locale:alternate" content="en_US" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="dsh-bell-notify 🔔 — DeepSeek Harness 生命周期铃声插件" />
-  <meta name="twitter:description" content="可自定义的 Agent 生命周期铃声通知：每个环节都有一声提示音，可换成你自己的音频，外加会呼吸的状态点。Web Audio 实时合成，零音频文件，MIT 开源。" />
-  <meta name="twitter:image" content="https://laplace-bit.github.io/dsh-bell-notify/screenshot.jpg" />
+  <meta name="twitter:description" content="可自定义的 Agent 生命周期铃声通知：每个环节都有一声提示音，可换成自己的音频。Web Audio 实时合成，零音频文件，MIT 开源。" />
 
   <!-- Structured data -->
   <script type="application/ld+json">
@@ -38,7 +33,7 @@
     "@type": "SoftwareSourceCode",
     "name": "dsh-bell-notify",
     "alternateName": "bell-notify",
-    "description": "DeepSeek Harness (dsh) 社区插件：Agent 生命周期铃声与状态指示器。零音频文件，全部铃声由 Web Audio 实时合成。",
+    "description": "DeepSeek Harness (dsh) 社区插件：Agent 生命周期铃声通知。零音频文件，全部铃声由 Web Audio 实时合成。",
     "programmingLanguage": "TypeScript",
     "codeRepository": "https://github.com/Laplace-bit/dsh-bell-notify",
     "license": "https://github.com/Laplace-bit/dsh-bell-notify/blob/main/LICENSE",
@@ -157,35 +152,6 @@
     .card h3 { margin: 0 0 8px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
     .card p { margin: 0; color: var(--muted); font-size: 14px; }
 
-    /* Status dot demo */
-    .dot-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 24px; }
-    .dot-item { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-    .dot {
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--blue); position: relative;
-    }
-    .dot.pulse { animation: pulse 1.2s ease-out infinite; }
-    .dot.rhythm { background: var(--orange); animation: rhythm 1s ease-in-out infinite; }
-    .dot.blink { background: var(--yellow); animation: blink 1s steps(2, start) infinite; }
-    .dot.ripple { background: var(--green); animation: ripple 1.4s ease-out infinite; }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(90, 162, 230, .5); }
-      70% { box-shadow: 0 0 0 12px rgba(90, 162, 230, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(90, 162, 230, 0); }
-    }
-    @keyframes rhythm {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.5); }
-    }
-    @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: .2; }
-    }
-    @keyframes ripple {
-      0% { box-shadow: 0 0 0 0 rgba(95, 196, 119, .55); }
-      100% { box-shadow: 0 0 0 14px rgba(95, 196, 119, 0); }
-    }
-
     /* Ring demo */
     .demo-tip {
       background: rgba(90, 162, 230, .08); border: 1px solid rgba(90, 162, 230, .3);
@@ -263,7 +229,7 @@
   <div class="wrap">
     <span class="kicker">DeepSeek Harness 社区插件 · MIT 开源</span>
     <h1>给 Agent 配一套<span class="bell">可自定义的铃声通知</span></h1>
-    <p class="sub">每个生命周期环节都有专属铃声，右下角一个会呼吸的状态点随时告诉你 Agent 在干嘛。不用任何音频文件——所有铃声都是 <b style="color:var(--text)">Web Audio 实时合成</b>的，还能换成你自己的声音。</p>
+    <p class="sub">每个生命周期环节都有专属铃声。不用任何音频文件——所有铃声都是 <b style="color:var(--text)">Web Audio 实时合成</b>的，还能在插件配置中换成自己的声音。</p>
     <div class="cta">
       <a class="btn primary" href="#demo">▶ 在线试听所有铃声</a>
       <a class="btn" href="#install">安装插件</a>
@@ -272,17 +238,10 @@
   </div>
 </header>
 
-<section id="screenshot">
-  <div class="wrap shot-box">
-    <img src="./screenshot.jpg" alt="dsh-bell-notify 在 dsh 页面右下角的铃声与状态点运行截图" width="1280" height="764" loading="lazy" />
-    <p class="shot-caption">右下角：会「呼吸」的状态点；每个环节：专属铃声。</p>
-  </div>
-</section>
-
 <section id="features">
   <div class="wrap">
     <h2>它能干什么</h2>
-    <p class="lead">一个小插件，三件小事：专属铃声、自定义音源、呼吸状态点。</p>
+    <p class="lead">一个小插件，两类控制：专属铃声与自定义音源。</p>
     <div class="grid">
       <div class="card">
         <h3>🎵 每个环节都有专属铃声</h3>
@@ -290,7 +249,7 @@
       </div>
       <div class="card">
         <h3>🎛️ 每个声音都能自己换</h3>
-        <p>点右下角小圆点，试听、上传自己的音频文件、一键还原。换上的声音会记住，刷新不丢。</p>
+        <p>在设置的插件配置中试听、上传自己的音频文件、一键还原。换上的声音会记住，刷新不丢。</p>
       </div>
       <div class="card">
         <h3>🎼 声音是「活」的</h3>
@@ -298,14 +257,6 @@
       </div>
     </div>
 
-    <h2 style="margin-top:44px">🔴 一个会「呼吸」的状态点</h2>
-    <p class="lead">它不抢戏、不弹窗、不加字，只是用颜色和动作安静地陪着你。</p>
-    <div class="dot-row">
-      <div class="dot-item"><div class="dot pulse"></div>🔵 蓝色脉动 · 正在思考</div>
-      <div class="dot-item"><div class="dot rhythm"></div>🟠 橙色律动 · 正在干活（工具/命令）</div>
-      <div class="dot-item"><div class="dot blink"></div>🟡 黄色闪烁 · 在等你确认</div>
-      <div class="dot-item"><div class="dot ripple"></div>🟢 绿色扩散 · 这一轮完成</div>
-    </div>
   </div>
 </section>
 
@@ -323,13 +274,12 @@
   <div class="wrap">
     <h2>安装</h2>
     <p class="lead">从 DeepSeek Harness 源码仓库安装：</p>
-    <pre>pnpm dsh plugin --profile bell add <span class="cm">github:Laplace-bit/dsh-bell-notify</span></pre>
+    <pre>pnpm dsh plugin --profile bell add <span class="cm">dsh-bell-notify</span></pre>
     <p class="lead">如果 <code>PATH</code> 上已经有 <code>dsh</code>：</p>
-    <pre>dsh plugin --profile bell add <span class="cm">github:Laplace-bit/dsh-bell-notify</span></pre>
-    <p class="note">第一次 <code>add</code> 失败是正常的：git 安装要跑 <code>prepare</code> 脚本，pnpm ≥10 会拦截。打开 <code>~/.dsh/profiles/bell/pnpm-workspace.yaml</code> 加上 pnpm 打印的 <code>onlyBuiltDependencies</code>，再重跑同一条命令。</p>
+    <pre>dsh plugin --profile bell add <span class="cm">dsh-bell-notify</span></pre>
     <p class="lead">启动：</p>
     <pre>pnpm dsh --profile bell</pre>
-    <p class="note">打开页面后<strong>先点一下页面任意位置</strong>（浏览器音频自动播放策略，点一次即可解锁声音），然后随便跑一个任务，声音和状态点就会一起动起来。</p>
+    <p class="note">打开页面后<strong>先点一下页面任意位置</strong>（浏览器音频自动播放策略，点一次即可解锁声音），然后随便跑一个任务即可听到提示音。</p>
     <p class="lead">卸载：</p>
     <pre>pnpm dsh plugin --profile bell remove dsh-bell-notify</pre>
   </div>
@@ -361,21 +311,17 @@
 <section id="config">
   <div class="wrap">
     <h2>配置</h2>
-    <p class="lead">在 profile 的 <code>cordis.patch.yml</code> 里改（Cordis 加载时会校验并补默认值）：</p>
+    <p class="lead">启用状态、静音、音量和每个铃声事件在 <strong>设置 → 插件 → 插件配置 → 铃声通知</strong> 中管理；下面是 profile 的常规运行参数：</p>
     <table class="tbl">
       <thead><tr><th>选项</th><th>默认</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td><code>enabled</code></td><td><code>true</code></td><td class="desc">总开关</td></tr>
-        <tr><td><code>masterVolume</code></td><td><code>0.7</code></td><td class="desc">总音量 0-1</td></tr>
-        <tr><td><code>muteAll</code></td><td><code>false</code></td><td class="desc">静音，但状态点照常工作</td></tr>
         <tr><td><code>maxQueue</code></td><td><code>8</code></td><td class="desc">等待队列容量</td></tr>
         <tr><td><code>maxConcurrent</code></td><td><code>3</code></td><td class="desc">同时播放的声音数（1 = 串行）</td></tr>
         <tr><td><code>defaultCooldown</code></td><td><code>1000</code></td><td class="desc">规则默认节流窗口（毫秒）</td></tr>
-        <tr><td><code>statusRevertMs</code></td><td><code>1000</code></td><td class="desc">瞬态状态自动回归时长</td></tr>
-        <tr><td><code>showStatusIndicator</code></td><td><code>true</code></td><td class="desc">是否显示右下角状态点</td></tr>
       </tbody>
     </table>
-    <p class="note">声音开关、自定义音源替换与文件名都持久化在浏览器本地（<code>localStorage</code> + IndexedDB），点小圆点就能改，刷新不丢。</p>
+    <p class="note">启用状态、静音和音量持久化在当前 profile。每个事件的开关、自定义音源和文件名都持久化在浏览器本地（<code>localStorage</code> + IndexedDB），刷新不丢。</p>
+    <p class="note">卡片会显示运行版本。只有 profile 确认使用 npm 包时才启用更新；<code>link:</code> / <code>file:</code> 本地安装会显示为开发版本，并保持更新禁用。</p>
   </div>
 </section>
 
@@ -391,8 +337,8 @@
       <p>大概率是浏览器的自动播放策略——插件首次加载后需要你先在页面上点击一次，声音才会解锁。</p>
     </details>
     <details>
-      <summary>能只开声音、不要那个圆点吗？</summary>
-      <p>可以。<code>showStatusIndicator: false</code> 关掉状态点，声音照常。</p>
+      <summary>在哪里配置提示音和更新插件？</summary>
+      <p>在 Web 设置的<strong>插件 → 插件配置 → 铃声通知</strong>中。这里可以管理启用状态、静音、音量、事件开关、自定义铃声，以及 npm 安装的更新。</p>
     </details>
     <details>
       <summary>自定义的声音存在哪？</summary>

@@ -2,17 +2,11 @@
 
 [English](./README.en.md) · [中文](./README.md)
 
-**dsh-bell-notify** is a community plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) that gives your Agent **ears and a heartbeat**: it rings along with every step of the work, while a tiny breathing dot in the corner tells you what it's up to at a glance.
+**dsh-bell-notify** is a community plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) that adds notification sounds to key Agent lifecycle events.
 
 No audio files — every bell is synthesized in real time with the Web Audio API. And every single event can be swapped for your own sound file. It's a small thing that builds a little bit of unspoken rapport between you and your Agent.
 
 > Not part of the official DeepSeek distribution. An MIT-licensed community plugin.
-
-## Screenshot
-
-<!-- Put your screenshot in docs/ (e.g. docs/screenshot.png) and point `src` at it. -->
-
-![dsh-bell-notify preview](docs/screenshot.png)
 
 ## What it does
 
@@ -37,24 +31,13 @@ Every move the Agent makes rings once, and each one sounds different:
 
 ### 🎛️ Swap in your own sounds
 
-Don't like a bell? **Click the little dot**, open the panel, and for every event you can:
+Don't like a bell? Open **Settings → Plugins → Plugin configuration → Bell notifications**. For every event you can:
 
 - **Preview** the default sound, or the one you uploaded
 - **Upload** your own audio file to replace it
 - **Reset** back to default
 
 Your replacement sticks (survives reload) and the panel even shows the **file name** you uploaded. Synthesized bells that grow into your own.
-
-### 🔴 A status dot that "breathes"
-
-The dot isn't just a light — it speaks in color and motion:
-
-- 🔵 Blue pulse = thinking
-- 🟠 Orange rhythm = working (tools / commands)
-- 🟡 Yellow blink = waiting on you
-- 🟢 Green ripple = this turn ended nicely
-
-It doesn't interrupt, doesn't pop up, doesn't add text. It just quietly keeps you company. Turn it off with one config flag if you'd rather not.
 
 ### 🎼 Sounds that are "alive"
 
@@ -68,7 +51,7 @@ All bells are synthesized on the fly — not recorded files. That means:
 
 You stare at a terminal waiting for the Agent; your eyes get tired while your ears sit idle. Give each step a soft sound and you can **keep tabs on progress with your ears while you do something else** — and when it needs you (waiting, errors), it'll call you over itself.
 
-It's not a serious productivity feature. It's more like hanging a little bell on your Agent. 🐕
+It's not a heavy productivity feature; it is a small set of well-timed notifications for your Agent.
 
 ## Install
 
@@ -92,7 +75,7 @@ Start it:
 pnpm dsh --profile bell
 ```
 
-Open the page, **click anywhere once** (browser autoplay policy — one click unlocks audio), then run any task and the sounds and dot come alive together.
+Open the page, **click anywhere once** (browser autoplay policy — one click unlocks audio), then run any task to hear notification sounds.
 
 Remove it:
 
@@ -102,20 +85,19 @@ pnpm dsh plugin --profile bell remove dsh-bell-notify
 
 ## Configuration
 
-Edit the profile's `cordis.patch.yml` (Cordis validates and fills defaults at load):
+Tune regular runtime parameters in the profile's `cordis.patch.yml` (Cordis validates and fills defaults at load):
 
 ```yaml
-enabled: true
-masterVolume: 0.7      # master volume 0-1
-muteAll: false         # mute, but the dot keeps working
 maxQueue: 8            # wait-queue capacity
 maxConcurrent: 3       # simultaneous sounds (1 = serial, higher = more overlap)
 defaultCooldown: 1000  # global cooldown fallback (ms)
-statusRevertMs: 1000   # transient status auto-revert (ms)
-showStatusIndicator: true
 ```
 
-Sound toggles and custom-sound replacements live in your browser's local storage (`localStorage` + IndexedDB), not in this config — click the dot to change them, applied instantly and kept across reloads.
+Manage enablement, mute, and volume in **Settings → Plugins → Plugin configuration → Bell notifications**; those values are durable profile settings. Per-event toggles, custom sound replacements, and file names remain browser-local (`localStorage` + IndexedDB), apply immediately, and survive reloads.
+
+### Version and updates
+
+The card shows the running version from package metadata. Update is enabled only when the active profile is confirmed to use an npm registry dependency; it runs the fixed command `pnpm update dsh-bell-notify` in that profile, then reconciles `dsh.profile.bundles` with Harness' bundle rules before requiring a Harness restart. `link:` and `file:` development installs show as a development version and keep Update disabled so local source links are never replaced.
 
 ## Development
 
@@ -136,8 +118,8 @@ No. It's a community plugin for DeepSeek Harness (`dsh`), MIT-licensed, not part
 **Why is there no sound?**
 Most likely the browser autoplay policy — after the plugin loads you need to click the page once to unlock audio. After that, event sounds work normally.
 
-**Can I keep the sounds and drop the dot?**
-Yes. Set `showStatusIndicator: false`; sounds keep working.
+**Where do I configure notification sounds?**
+Open **Settings → Plugins → Plugin configuration → Bell notifications**. It manages enablement, mute, volume, event toggles, custom sounds, and updates for npm-installed versions.
 
 **Where are custom sounds stored?**
 Bytes in browser IndexedDB, event-to-file mapping in `localStorage`. All local — nothing is uploaded anywhere.
