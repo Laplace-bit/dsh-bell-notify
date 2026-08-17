@@ -1,7 +1,7 @@
 {
   "name": "dsh-bell-notify",
-  "version": "0.1.0",
-  "description": "DeepSeek Harness (dsh) plugin: lifecycle notification sounds. dsh Agent 生命周期铃声通知插件（零音频文件，Web Audio 合成）。",
+  "version": "0.1.1",
+  "description": "Configurable, unobtrusive Agent lifecycle sound cues for DeepSeek Harness (dsh), synthesized with Web Audio.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "src/**/*.tsx",
     "src/**/*.css",
     "cordis.patch.yml",
+    "preview.html",
     "README.md",
     "README.en.md"
   ],

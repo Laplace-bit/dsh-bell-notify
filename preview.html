@@ -1,98 +1,333 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>bell-notify 铃声试听台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>dsh-bell-notify | 内置提示音试听</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; background: #111418; color: #e6e6e6; }
-  h1 { font-size: 20px; }
-  p.note { color: #9aa0a6; font-size: 14px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-  button { padding: 14px 16px; border: 1px solid #333a42; border-radius: 10px; background: #1b2027; color: #e6e6e6; font-size: 15px; text-align: left; cursor: pointer; transition: background .15s; }
-  button:hover { background: #242b34; }
-  button .desc { display: block; color: #9aa0a6; font-size: 12px; margin-top: 4px; }
-  button:disabled { opacity: .5; }
+  :root {
+    color-scheme: dark;
+    --bg: #101419;
+    --surface: #181e26;
+    --surface-hover: #202935;
+    --border: #313c4c;
+    --text: #eef2f7;
+    --muted: #aab5c3;
+    --accent: #66c9b5;
+    --accent-soft: #193c3b;
+    --on: #8dd5a5;
+    --off: #b6c0cc;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 1.55;
+  }
+
+  main {
+    width: min(100% - 32px, 960px);
+    margin: 0 auto;
+    padding: 48px 0 56px;
+  }
+
+  header { max-width: 720px; }
+
+  .eyebrow {
+    margin: 0 0 12px;
+    color: var(--accent);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+  }
+
+  h1, h2, p { margin-top: 0; }
+  h1 { margin-bottom: 12px; font-size: 32px; line-height: 1.2; }
+  h2 { margin-bottom: 8px; font-size: 18px; }
+
+  .intro, .muted, footer { color: var(--muted); }
+  .intro { margin-bottom: 16px; font-size: 16px; }
+
+  .location {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .location strong { color: var(--text); }
+
+  .controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, .72fr);
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 18px;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  label { font-size: 15px; font-weight: 600; }
+  output { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  input[type="range"] {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+
+  .panel p { margin: 12px 0 0; font-size: 13px; }
+
+  .default-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .default-list li {
+    padding: 4px 8px;
+    border: 1px solid #35605a;
+    border-radius: 6px;
+    color: var(--on);
+    font-size: 13px;
+  }
+
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .event-button {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    min-height: 112px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: border-color 160ms ease, background 160ms ease;
+  }
+
+  .event-button:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--surface-hover);
+  }
+
+  .event-button:focus-visible,
+  input[type="range"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .event-button:disabled { cursor: default; opacity: .56; }
+  .event-name { font-size: 15px; font-weight: 600; }
+  .event-status { align-self: start; font-size: 12px; }
+  .event-status.on { color: var(--on); }
+  .event-status.off { color: var(--off); }
+  .event-description { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+
+  #status {
+    min-height: 24px;
+    margin: 14px 0 0;
+    color: var(--accent);
+    font-size: 14px;
+  }
+
+  footer { margin-top: 36px; font-size: 13px; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 680px) {
+    main { width: min(100% - 24px, 960px); padding-top: 32px; }
+    h1 { font-size: 27px; }
+    .controls { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
-<h1>bell-notify 铃声试听台</h1>
-<p class="note">与插件运行时使用同一份配方与渲染逻辑（Web Audio 振荡器实时合成，无音频文件）。音量 0.7，即默认 masterVolume。</p>
-<div class="grid" id="grid"></div>
-<p class="note" id="status"></p>
+<main>
+  <header>
+    <p class="eyebrow">dsh-bell-notify / built-in sound preview</p>
+    <h1>内置提示音试听</h1>
+    <p class="intro">这里试听的是插件运行时同一套 Web Audio 配方。它只用于预览声音，不会修改你的 Harness 配置。</p>
+    <p class="location"><strong>实际配置入口：</strong>设置 → 插件 → 插件配置 → 铃声通知。插件不再显示右下角状态点或悬浮设置面板。</p>
+  </header>
+
+  <section class="controls" aria-label="试听设置与默认策略">
+    <div class="panel">
+      <div class="control-row">
+        <label for="volume">试听音量</label>
+        <output id="volume-value" for="volume">70%</output>
+      </div>
+      <input id="volume" type="range" min="0" max="100" value="70" />
+      <p class="muted">默认值与插件的总音量一致。浏览器首次播放仍需要一次用户操作来解锁音频。</p>
+    </div>
+    <div class="panel">
+      <h2>首次安装默认开启</h2>
+      <p class="muted">只保留高价值提醒，过程事件按需开启。</p>
+      <ul class="default-list" aria-label="默认开启事件">
+        <li>开始执行</li>
+        <li>等待确认</li>
+        <li>本轮完成</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="events-heading">
+    <h2 id="events-heading">可配置事件</h2>
+    <p class="muted">点击任意项目试听。标为“默认关闭”的事件已预置铃声，但新安装不会自动播放。</p>
+    <div class="event-grid" id="events"></div>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <footer>
+    <a href="https://github.com/Laplace-bit/dsh-bell-notify">GitHub</a>
+    <span> · </span>
+    <a href="https://laplace-bit.github.io/dsh-bell-notify/">项目说明</a>
+  </footer>
+</main>
+
 <script type="module">
-// 配方数据与 src/core/sounds.ts 保持同步
-const RECIPES = {
-  startup: { desc: '300→900Hz 上行扫频 0.35s（会话启动）', notes: [{ wave: 'sine', from: 300, to: 900, start: 0, duration: 0.35, gain: 0.6 }] },
-  click: { desc: '1200Hz 短促 go 单击 0.045s（开始执行）', notes: [{ wave: 'sine', from: 1200, start: 0, duration: 0.045, gain: 0.5 }] },
-  notify: { desc: '392Hz 柔和单音 0.28s（开始思考）', notes: [{ wave: 'sine', from: 392, start: 0, duration: 0.28, gain: 0.45 }] },
-  tick: { desc: '1600+2000Hz 金属双 tick（工具调用）', notes: [
+const EVENTS = [
+  { label: '会话启动', defaultOn: false, description: '300→900Hz 上行扫频', notes: [{ wave: 'sine', from: 300, to: 900, start: 0, duration: 0.35, gain: 0.6 }] },
+  { label: '开始执行', defaultOn: true, description: '1200Hz 短促单击', notes: [{ wave: 'sine', from: 1200, start: 0, duration: 0.045, gain: 0.5 }] },
+  { label: '开始思考', defaultOn: false, description: '392Hz 柔和单音', notes: [{ wave: 'sine', from: 392, start: 0, duration: 0.28, gain: 0.45 }] },
+  { label: '工具调用', defaultOn: false, description: '金属双 tick', notes: [
     { wave: 'triangle', from: 1600, start: 0, duration: 0.03, gain: 0.4 },
-    { wave: 'triangle', from: 2000, start: 0.045, duration: 0.03, gain: 0.4 }] },
-  drop: { desc: '440→330Hz 低音下滑 0.18s（工具完成）', notes: [{ wave: 'sine', from: 440, to: 330, start: 0, duration: 0.18, gain: 0.5 }] },
-  beep: { desc: '520Hz 短方波 beep 0.07s（命令执行）', notes: [{ wave: 'square', from: 520, start: 0, duration: 0.07, gain: 0.35 }] },
-  rise: { desc: '520+780Hz 上行双音（命令完成）', notes: [
+    { wave: 'triangle', from: 2000, start: 0.045, duration: 0.03, gain: 0.4 },
+  ] },
+  { label: '工具完成', defaultOn: false, description: '440→330Hz 低音下滑', notes: [{ wave: 'sine', from: 440, to: 330, start: 0, duration: 0.18, gain: 0.5 }] },
+  { label: '命令执行', defaultOn: false, description: '520Hz 短方波', notes: [{ wave: 'square', from: 520, start: 0, duration: 0.07, gain: 0.35 }] },
+  { label: '命令完成', defaultOn: false, description: '520Hz 与 780Hz 上行双音', notes: [
     { wave: 'sine', from: 520, start: 0, duration: 0.08, gain: 0.5 },
-    { wave: 'sine', from: 780, start: 0.09, duration: 0.12, gain: 0.5 }] },
-  alert: { desc: '880Hz 高频三连 0.32s（等待确认）', notes: [0, 0.12, 0.24].map((start) => ({ wave: 'sine', from: 880, start, duration: 0.08, gain: 0.6 })) },
-  success: { desc: 'C-E-G 上行大三和弦（本轮完成）', notes: [
+    { wave: 'sine', from: 780, start: 0.09, duration: 0.12, gain: 0.5 },
+  ] },
+  { label: '等待确认', defaultOn: true, description: '880Hz 高频三连', notes: [0, 0.12, 0.24].map(start => ({ wave: 'sine', from: 880, start, duration: 0.08, gain: 0.6 })) },
+  { label: '本轮完成', defaultOn: true, description: 'C-E-G 上行大三和弦', notes: [
     { wave: 'sine', from: 523.25, start: 0, duration: 0.11, gain: 0.6 },
     { wave: 'sine', from: 659.25, start: 0.11, duration: 0.11, gain: 0.6 },
-    { wave: 'sine', from: 783.99, start: 0.22, duration: 0.11, gain: 0.6 }] },
-  confirm: { desc: '660→440Hz 单音下滑 0.22s（回到空闲）', notes: [{ wave: 'sine', from: 660, to: 440, start: 0, duration: 0.22, gain: 0.5 }] },
-  error: { desc: '150Hz 方波 0.4s（保留音）', notes: [{ wave: 'square', from: 150, start: 0, duration: 0.4, gain: 0.5 }] },
-  failure: { desc: '400→200Hz 下滑音 0.35s（保留音）', notes: [{ wave: 'sine', from: 400, to: 200, start: 0, duration: 0.35, gain: 0.6 }] },
-}
-const MASTER_VOLUME = 0.7
-const ATTACK = 0.005
+    { wave: 'sine', from: 783.99, start: 0.22, duration: 0.11, gain: 0.6 },
+  ] },
+  { label: '回到空闲', defaultOn: false, description: '660→440Hz 单音下滑', notes: [{ wave: 'sine', from: 660, to: 440, start: 0, duration: 0.22, gain: 0.5 }] },
+]
 
-let ctx, master
+const volume = document.querySelector('#volume')
+const volumeValue = document.querySelector('#volume-value')
+const eventContainer = document.querySelector('#events')
+const status = document.querySelector('#status')
+const AudioContextConstructor = window.AudioContext || window.webkitAudioContext
+let context
+let master
+
+function currentVolume() {
+  return Number(volume.value) / 100
+}
+
 function ensureContext() {
-  if (!ctx) {
-    ctx = new AudioContext()
-    master = ctx.createGain()
-    master.gain.value = MASTER_VOLUME
-    master.connect(ctx.destination)
+  if (AudioContextConstructor === undefined) {
+    throw new Error('当前浏览器不支持 Web Audio，无法播放此提示音。')
   }
-  return ctx
+  if (context === undefined) {
+    context = new AudioContextConstructor()
+    master = context.createGain()
+    master.connect(context.destination)
+  }
+  master.gain.value = currentVolume()
+  return context
 }
 
-// 与 src/platform/audio.ts 的 WebAudioPlayer.play 渲染逻辑一致
-function play(id) {
-  const recipe = RECIPES[id]
-  const c = ensureContext()
-  if (c.state === 'suspended') c.resume()
-  const t0 = c.currentTime + 0.01
-  let total = 0
-  for (const n of recipe.notes) {
-    const osc = c.createOscillator()
-    const env = c.createGain()
-    osc.type = n.wave
-    osc.frequency.setValueAtTime(n.from, t0 + n.start)
-    if (n.to !== undefined) osc.frequency.linearRampToValueAtTime(n.to, t0 + n.start + n.duration)
-    const attack = Math.min(ATTACK, n.duration / 2)
-    env.gain.setValueAtTime(0, t0 + n.start)
-    env.gain.linearRampToValueAtTime(n.gain, t0 + n.start + attack)
-    env.gain.linearRampToValueAtTime(0, t0 + n.start + n.duration)
-    osc.connect(env); env.connect(master)
-    osc.start(t0 + n.start); osc.stop(t0 + n.start + n.duration + 0.005)
-    total = Math.max(total, n.start + n.duration)
+function setButtonsDisabled(disabled) {
+  for (const button of eventContainer.querySelectorAll('button')) button.disabled = disabled
+}
+
+async function play(event) {
+  const audioContext = ensureContext()
+  if (audioContext.state === 'suspended') await audioContext.resume()
+  const startAt = audioContext.currentTime + 0.01
+  let duration = 0
+  for (const note of event.notes) {
+    const oscillator = audioContext.createOscillator()
+    const envelope = audioContext.createGain()
+    oscillator.type = note.wave
+    oscillator.frequency.setValueAtTime(note.from, startAt + note.start)
+    if (note.to !== undefined) oscillator.frequency.linearRampToValueAtTime(note.to, startAt + note.start + note.duration)
+    const attack = Math.min(0.005, note.duration / 2)
+    envelope.gain.setValueAtTime(0, startAt + note.start)
+    envelope.gain.linearRampToValueAtTime(note.gain, startAt + note.start + attack)
+    envelope.gain.linearRampToValueAtTime(0, startAt + note.start + note.duration)
+    oscillator.connect(envelope)
+    envelope.connect(master)
+    oscillator.start(startAt + note.start)
+    oscillator.stop(startAt + note.start + note.duration + 0.005)
+    duration = Math.max(duration, note.start + note.duration)
   }
-  const status = document.getElementById('status')
-  const btns = [...document.querySelectorAll('button')]
-  btns.forEach((b) => (b.disabled = true))
-  status.textContent = `正在播放 ${id} …`
-  setTimeout(() => {
-    btns.forEach((b) => (b.disabled = false))
+  setButtonsDisabled(true)
+  status.textContent = `正在试听：${event.label}`
+  window.setTimeout(() => {
+    setButtonsDisabled(false)
     status.textContent = ''
-  }, (total + 0.1) * 1000)
+  }, (duration + 0.1) * 1000)
 }
 
-const grid = document.getElementById('grid')
-for (const [id, r] of Object.entries(RECIPES)) {
-  const btn = document.createElement('button')
-  btn.innerHTML = `${id}<span class="desc">${r.desc}</span>`
-  btn.onclick = () => play(id)
-  grid.appendChild(btn)
+volume.addEventListener('input', () => {
+  volumeValue.value = `${volume.value}%`
+  volumeValue.textContent = `${volume.value}%`
+  if (master !== undefined) master.gain.value = currentVolume()
+})
+
+for (const event of EVENTS) {
+  const button = document.createElement('button')
+  const name = document.createElement('span')
+  const state = document.createElement('span')
+  const description = document.createElement('span')
+  button.type = 'button'
+  button.className = 'event-button'
+  button.setAttribute('aria-label', `试听${event.label}`)
+  name.className = 'event-name'
+  name.textContent = event.label
+  state.className = `event-status ${event.defaultOn ? 'on' : 'off'}`
+  state.textContent = event.defaultOn ? '默认开启' : '默认关闭'
+  description.className = 'event-description'
+  description.textContent = event.description
+  button.append(name, state, description)
+  button.addEventListener('click', () => {
+    void play(event).catch((error) => {
+      setButtonsDisabled(false)
+      status.textContent = error instanceof Error ? error.message : '浏览器无法播放此提示音。'
+    })
+  })
+  eventContainer.append(button)
 }
 </script>
 </body>

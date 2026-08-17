@@ -2,56 +2,52 @@
 
 [English](./README.en.md) · [中文](./README.md)
 
-**dsh-bell-notify** is a community plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) that adds notification sounds to key Agent lifecycle events.
+**dsh-bell-notify** is a community plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`). It turns key Agent lifecycle events into configurable sound cues, so you can follow progress without watching the page.
 
-No audio files — every bell is synthesized in real time with the Web Audio API. And every single event can be swapped for your own sound file. It's a small thing that builds a little bit of unspoken rapport between you and your Agent.
+Every bell is synthesized in real time with the Web Audio API, with no audio assets in the package. Controls live in **Settings → Plugins → Plugin configuration → Bell notifications**; there is no floating workspace panel or corner status dot competing with the conversation UI.
 
 > Not part of the official DeepSeek distribution. An MIT-licensed community plugin.
 
 ## What it does
 
-### 🎵 A distinct bell for every step
+### 🎵 Sound the moments that matter
 
-Every move the Agent makes rings once, and each one sounds different:
+Each configurable event has its own bell. A new installation enables only the three highest-value cues by default: **Agent start, waiting for input, and turn complete**. The remaining events are preconfigured but silent until you enable them, so routine activity does not become noise.
 
-| Event | Default bell | Feels like |
-|-------|-------------|-----------|
-| Session start | `startup` | A soft upward sweep, like powering on |
-| Agent start | `click` | A short "ding", we're off |
-| Thinking | `notify` | A gentle single note, settling in |
-| Tool call | `tick` | A crisp metallic "ta-ta" |
-| Tool done | `drop` | A low settle, wrapping up |
-| Command run | `beep` | A short beep, terminal-flavored |
-| Command done | `rise` | A rising two-note "done" |
-| Waiting for you | `alert` | A high triple-chirp, look here |
-| Turn complete | `success` | A rising major chord, satisfying |
-| Back to idle | `confirm` | A single note drifting down, quiet again |
-
-> `error` and `failure` are built in too, off by default — wire them up in config if you like.
+| Event | Default bell | Initial state |
+|-------|-------------|---------------|
+| Session start | `startup` | Off |
+| Agent start | `click` | On |
+| Thinking | `notify` | Off |
+| Tool call | `tick` | Off |
+| Tool done | `drop` | Off |
+| Command run | `beep` | Off |
+| Command done | `rise` | Off |
+| Waiting for input | `alert` | On |
+| Turn complete | `success` | On |
+| Back to idle | `confirm` | Off |
 
 ### 🎛️ Swap in your own sounds
 
-Don't like a bell? Open **Settings → Plugins → Plugin configuration → Bell notifications**. For every event you can:
+Open **Settings → Plugins → Plugin configuration → Bell notifications**. For every event you can:
 
 - **Preview** the default sound, or the one you uploaded
 - **Upload** your own audio file to replace it
 - **Reset** back to default
 
-Your replacement sticks (survives reload) and the panel even shows the **file name** you uploaded. Synthesized bells that grow into your own.
+Your replacement survives reloads and the card shows the uploaded file name. Choose **Reset** whenever you want to return to the built-in recipe.
 
 ### 🎼 Sounds that are "alive"
 
 All bells are synthesized on the fly — not recorded files. That means:
 
 - Zero audio assets, a negligible footprint
-- Pitch, rhythm, and length tunable through config
+- Built-in recipes generated at playback; replace any event with your own audio
 - Fully offline, no network, no external resources
 
 ## Why
 
-You stare at a terminal waiting for the Agent; your eyes get tired while your ears sit idle. Give each step a soft sound and you can **keep tabs on progress with your ears while you do something else** — and when it needs you (waiting, errors), it'll call you over itself.
-
-It's not a heavy productivity feature; it is a small set of well-timed notifications for your Agent.
+When the Agent runs for a while, the page is not always in view. A small set of high-value cues for starting, requesting input, and finishing lets you keep working elsewhere and return to Harness when attention is needed.
 
 ## Install
 
@@ -75,7 +71,7 @@ Start it:
 pnpm dsh --profile bell
 ```
 
-Open the page, **click anywhere once** (browser autoplay policy — one click unlocks audio), then run any task to hear notification sounds.
+Open the page, **click anywhere once** (browser autoplay policy — one click unlocks audio), then adjust events in **Settings → Plugins → Plugin configuration → Bell notifications**.
 
 Remove it:
 
@@ -93,7 +89,13 @@ maxConcurrent: 3       # simultaneous sounds (1 = serial, higher = more overlap)
 defaultCooldown: 1000  # global cooldown fallback (ms)
 ```
 
-Manage enablement and volume in **Settings → Plugins → Plugin configuration → Bell notifications**; disabling notification sounds mutes everything. Those values are durable profile settings. Per-event toggles, custom sound replacements, and file names remain browser-local (`localStorage` + IndexedDB), apply immediately, and survive reloads.
+Use **Settings → Plugins → Plugin configuration → Bell notifications** for:
+
+- **Enable notification sounds**, the only global sound switch. Turning it off mutes everything.
+- Profile-durable enablement and master-volume preferences.
+- Browser-local event toggles, custom sound replacements, and file names (`localStorage` + IndexedDB), applied immediately and retained across reloads.
+
+The former corner status dot and floating panel have been removed; all controls now live in the plugin configuration card.
 
 ### Version and updates
 
@@ -108,7 +110,7 @@ pnpm test           # unit tests
 pnpm typecheck
 ```
 
-Want to hear every built-in bell? Open [preview.html](preview.html), or try the [project page](https://laplace-bit.github.io/dsh-bell-notify/) to listen live.
+Want to hear the built-in bells? Open [preview.html](preview.html) from the repository, or visit the [live preview](https://laplace-bit.github.io/dsh-bell-notify/).
 
 ## FAQ
 
@@ -120,6 +122,9 @@ Most likely the browser autoplay policy — after the plugin loads you need to c
 
 **Where do I configure notification sounds?**
 Open **Settings → Plugins → Plugin configuration → Bell notifications**. It manages enablement, volume, event toggles, custom sounds, and updates for npm-installed versions.
+
+**Why is there no corner status dot or floating panel?**
+They were removed to keep the workspace unobstructed. All controls are now consolidated in Plugin configuration.
 
 **Where are custom sounds stored?**
 Bytes in browser IndexedDB, event-to-file mapping in `localStorage`. All local — nothing is uploaded anywhere.

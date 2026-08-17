@@ -6,7 +6,7 @@
   <title>dsh-bell-notify 🔔 — Lifecycle notifications for DeepSeek Harness | Web Audio synthesis</title>
 
   <!-- SEO -->
-  <meta name="description" content="dsh-bell-notify is a community plugin for DeepSeek Harness (dsh): customizable bell notifications for Agent lifecycle events. Zero audio files — all bells are synthesized in real time with the Web Audio API and can be replaced with your own sound. MIT licensed." />
+  <meta name="description" content="dsh-bell-notify is a DeepSeek Harness (dsh) community plugin with configurable, unobtrusive sound cues for key Agent lifecycle events. Zero audio files, real-time Web Audio synthesis, custom sounds. MIT licensed." />
   <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, notification, sound, Web Audio, lifecycle, cordis, deepseek plugin" />
   <meta name="author" content="Laplace-bit" />
   <meta name="robots" content="index, follow" />
@@ -16,14 +16,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="dsh-bell-notify" />
   <meta property="og:title" content="dsh-bell-notify 🔔 — Lifecycle notifications for DeepSeek Harness" />
-  <meta property="og:description" content="Customizable bell notifications for DeepSeek Harness: a distinct, swappable sound for every lifecycle event. Zero audio files, real-time Web Audio synthesis, MIT licensed." />
+  <meta property="og:description" content="Configurable sound cues for key Agent lifecycle events. New installs enable only Agent start, waiting for input, and turn complete; custom sounds supported. Zero audio files, real-time Web Audio synthesis, MIT licensed." />
   <meta property="og:url" content="https://laplace-bit.github.io/dsh-bell-notify/en.html" />
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="dsh-bell-notify 🔔 — Lifecycle notifications for DeepSeek Harness" />
-  <meta name="twitter:description" content="Customizable bell notifications for every lifecycle event. Real-time Web Audio, zero audio files, MIT licensed." />
+  <meta name="twitter:description" content="Configurable, unobtrusive sound cues for key Agent lifecycle events. Three cues enabled by default; custom sounds supported. Real-time Web Audio, zero audio files, MIT licensed." />
 
   <!-- Structured data -->
   <script type="application/ld+json">
@@ -126,14 +126,6 @@
     section h2::before { content: ""; width: 4px; height: 22px; border-radius: 2px; background: linear-gradient(var(--gold), var(--orange)); display: inline-block; }
     .lead { color: var(--muted); margin: 0 0 24px; }
 
-    .shot-box { text-align: center; }
-    .shot-box img {
-      width: 100%; height: auto; max-width: 900px; border-radius: 14px;
-      border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-      margin-bottom: 12px;
-    }
-    .shot-caption { color: var(--muted); font-size: 13px; }
-
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
     .card {
       background: var(--card); border: 1px solid var(--border);
@@ -197,6 +189,8 @@
       header.hero { padding: 40px 0 28px; }
       section { padding: 32px 0; }
       h1 { font-size: 27px; }
+      table.events { display: block; overflow-x: auto; }
+      table.events .feels { min-width: 180px; }
     }
   </style>
 </head>
@@ -213,9 +207,9 @@
   <div class="wrap">
     <span class="kicker">Community plugin for DeepSeek Harness · MIT</span>
     <h1>Customizable bell notifications for your Agent</h1>
-    <p class="sub">A distinct bell for every lifecycle event. No audio files — every bell is <b>synthesized in real time with the Web Audio API</b>, and each event can be customized from Plugin configuration.</p>
+    <p class="sub">Configurable, unobtrusive sound cues for key lifecycle moments. No audio files — every bell is <b>synthesized in real time with the Web Audio API</b>, with custom sounds managed from Plugin configuration.</p>
     <div class="cta">
-      <a class="btn primary" href="#demo">▶ Hear every bell live</a>
+      <a class="btn primary" href="#demo">▶ Hear the built-in cues</a>
       <a class="btn" href="#install">Install the plugin</a>
       <a class="btn" href="https://github.com/Laplace-bit/dsh-bell-notify" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
@@ -225,19 +219,19 @@
 <section id="features">
   <div class="wrap">
     <h2>What it does</h2>
-    <p class="lead">One small plugin, two kinds of control: distinct bells and your own sounds.</p>
+    <p class="lead">A small, focused plugin for high-value cues that you can tune to your own workflow.</p>
     <div class="grid">
       <div class="card">
-        <h3>🎵 A distinct bell for every step</h3>
-        <p>Startup, thinking, tool calls, command done, waiting on you… each event sounds different, so you can follow progress with your ears.</p>
+        <h3>🎵 Ten events, three on by default</h3>
+        <p>Agent start, waiting for input, and turn complete are enabled first. Process-level events stay opt-in, so signals communicate progress instead of becoming noise.</p>
       </div>
       <div class="card">
         <h3>🎛️ Swap in your own sounds</h3>
-        <p>Use Plugin configuration to preview, upload your own audio file, or reset to default. Your replacement sticks and survives reload.</p>
+        <p>Use Plugin configuration to preview, upload your own audio file, or reset to default. Replacements persist across reloads without taking space in the workspace.</p>
       </div>
       <div class="card">
         <h3>🎼 Sounds that are "alive"</h3>
-        <p>All bells are synthesized on the fly — zero audio assets, a negligible footprint, fully offline, and pitch/rhythm tunable via config.</p>
+        <p>All bells are synthesized on the fly — zero audio assets, a negligible footprint, and fully offline. Replace an event with your own audio when you need a different sound.</p>
       </div>
     </div>
 
@@ -246,10 +240,10 @@
 
 <section id="demo" style="border-top:1px solid var(--border)">
   <div class="wrap">
-    <h2>🎧 Hear every bell live</h2>
-    <p class="lead">Same recipes and rendering logic as the plugin runtime (real-time Web Audio synthesis, no audio files). Volume 0.7, the default masterVolume.</p>
+    <h2>🎧 Hear the ten configurable events</h2>
+    <p class="lead">This preview uses the current built-in recipes and Web Audio rendering approach, with no audio files. Preview volume is 0.7, the default masterVolume.</p>
     <div class="demo-tip">🔊 Click any bell once to unlock audio (browser autoplay policy).</div>
-    <div class="ring-grid" id="rings" data-recipes='{"startup":{"desc":"Session start · 300→900Hz upward sweep","n":[{"w":"sine","f":300,"t":900,"s":0,"d":0.35,"g":0.6}]},"click":{"desc":"Agent start · short 1200Hz ding","n":[{"w":"sine","f":1200,"s":0,"d":0.045,"g":0.5}]},"notify":{"desc":"Thinking · soft 392Hz single note","n":[{"w":"sine","f":392,"s":0,"d":0.28,"g":0.45}]},"tick":{"desc":"Tool call · metallic double tick","n":[{"w":"triangle","f":1600,"s":0,"d":0.03,"g":0.4},{"w":"triangle","f":2000,"s":0.045,"d":0.03,"g":0.4}]},"drop":{"desc":"Tool done · low settle","n":[{"w":"sine","f":440,"t":330,"s":0,"d":0.18,"g":0.5}]},"beep":{"desc":"Command run · short square beep","n":[{"w":"square","f":520,"s":0,"d":0.07,"g":0.35}]},"rise":{"desc":"Command done · rising two-note","n":[{"w":"sine","f":520,"s":0,"d":0.08,"g":0.5},{"w":"sine","f":780,"s":0.09,"d":0.12,"g":0.5}]},"alert":{"desc":"Waiting on you · high triple-chirp","n":[{"w":"sine","f":880,"s":0,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.12,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.24,"d":0.08,"g":0.6}]},"success":{"desc":"Turn complete · C-E-G major chord","n":[{"w":"sine","f":523.25,"s":0,"d":0.11,"g":0.6},{"w":"sine","f":659.25,"s":0.11,"d":0.11,"g":0.6},{"w":"sine","f":783.99,"s":0.22,"d":0.11,"g":0.6}]},"confirm":{"desc":"Back to idle · single note drifting down","n":[{"w":"sine","f":660,"t":440,"s":0,"d":0.22,"g":0.5}]},"error":{"desc":"Error (reserved) · 150Hz square","n":[{"w":"square","f":150,"s":0,"d":0.4,"g":0.5}]},"failure":{"desc":"Failure (reserved) · downward sweep","n":[{"w":"sine","f":400,"t":200,"s":0,"d":0.35,"g":0.6}]}}'></div>
+    <div class="ring-grid" id="rings" data-recipes='{"startup":{"desc":"Session start · 300→900Hz upward sweep","n":[{"w":"sine","f":300,"t":900,"s":0,"d":0.35,"g":0.6}]},"click":{"desc":"Agent start · short 1200Hz ding","n":[{"w":"sine","f":1200,"s":0,"d":0.045,"g":0.5}]},"notify":{"desc":"Thinking · soft 392Hz single note","n":[{"w":"sine","f":392,"s":0,"d":0.28,"g":0.45}]},"tick":{"desc":"Tool call · metallic double tick","n":[{"w":"triangle","f":1600,"s":0,"d":0.03,"g":0.4},{"w":"triangle","f":2000,"s":0.045,"d":0.03,"g":0.4}]},"drop":{"desc":"Tool done · low settle","n":[{"w":"sine","f":440,"t":330,"s":0,"d":0.18,"g":0.5}]},"beep":{"desc":"Command run · short square beep","n":[{"w":"square","f":520,"s":0,"d":0.07,"g":0.35}]},"rise":{"desc":"Command done · rising two-note","n":[{"w":"sine","f":520,"s":0,"d":0.08,"g":0.5},{"w":"sine","f":780,"s":0.09,"d":0.12,"g":0.5}]},"alert":{"desc":"Waiting on you · high triple-chirp","n":[{"w":"sine","f":880,"s":0,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.12,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.24,"d":0.08,"g":0.6}]},"success":{"desc":"Turn complete · C-E-G major chord","n":[{"w":"sine","f":523.25,"s":0,"d":0.11,"g":0.6},{"w":"sine","f":659.25,"s":0.11,"d":0.11,"g":0.6},{"w":"sine","f":783.99,"s":0.22,"d":0.11,"g":0.6}]},"confirm":{"desc":"Back to idle · single note drifting down","n":[{"w":"sine","f":660,"t":440,"s":0,"d":0.22,"g":0.5}]}}'></div>
     <p class="demo-status" id="demo-status" role="status" aria-live="polite"></p>
   </div>
 </section>
@@ -271,31 +265,30 @@
 
 <section id="events">
   <div class="wrap">
-    <h2>🎵 Default bell for every event</h2>
-    <p class="lead">Every move the Agent makes rings once, and each one sounds different. Try them all live above.</p>
+    <h2>🎵 Ten configurable events</h2>
+    <p class="lead">Each event has a built-in bell and an independent toggle. New installs enable only the three cues that need your attention or mark a milestone; preview all ten configurable built-in recipes above.</p>
     <table class="events">
-      <thead><tr><th>Event</th><th>Default bell</th><th>Feels like</th></tr></thead>
+      <thead><tr><th>Event</th><th>Default bell</th><th>Initial state</th><th>Feels like</th></tr></thead>
       <tbody>
-        <tr><td>Session start</td><td><code>startup</code></td><td class="feels">A soft upward sweep, like powering on</td></tr>
-        <tr><td>Agent start</td><td><code>click</code></td><td class="feels">A short "ding", we're off</td></tr>
-        <tr><td>Thinking</td><td><code>notify</code></td><td class="feels">A gentle single note, settling in</td></tr>
-        <tr><td>Tool call</td><td><code>tick</code></td><td class="feels">A crisp metallic "ta-ta"</td></tr>
-        <tr><td>Tool done</td><td><code>drop</code></td><td class="feels">A low settle, wrapping up</td></tr>
-        <tr><td>Command run</td><td><code>beep</code></td><td class="feels">A short beep, terminal-flavored</td></tr>
-        <tr><td>Command done</td><td><code>rise</code></td><td class="feels">A rising two-note "done"</td></tr>
-        <tr><td>Waiting for you</td><td><code>alert</code></td><td class="feels">A high triple-chirp, look here</td></tr>
-        <tr><td>Turn complete</td><td><code>success</code></td><td class="feels">A rising major chord, satisfying</td></tr>
-        <tr><td>Back to idle</td><td><code>confirm</code></td><td class="feels">A single note drifting down, quiet again</td></tr>
+        <tr><td>Session start</td><td><code>startup</code></td><td>Off</td><td class="feels">A soft upward sweep, like powering on</td></tr>
+        <tr><td>Agent start</td><td><code>click</code></td><td>On</td><td class="feels">A short "ding", we're off</td></tr>
+        <tr><td>Thinking</td><td><code>notify</code></td><td>Off</td><td class="feels">A gentle single note, settling in</td></tr>
+        <tr><td>Tool call</td><td><code>tick</code></td><td>Off</td><td class="feels">A crisp metallic "ta-ta"</td></tr>
+        <tr><td>Tool done</td><td><code>drop</code></td><td>Off</td><td class="feels">A low settle, wrapping up</td></tr>
+        <tr><td>Command run</td><td><code>beep</code></td><td>Off</td><td class="feels">A short beep, terminal-flavored</td></tr>
+        <tr><td>Command done</td><td><code>rise</code></td><td>Off</td><td class="feels">A rising two-note "done"</td></tr>
+        <tr><td>Waiting for input</td><td><code>alert</code></td><td>On</td><td class="feels">A high triple-chirp, look here</td></tr>
+        <tr><td>Turn complete</td><td><code>success</code></td><td>On</td><td class="feels">A rising major chord, satisfying</td></tr>
+        <tr><td>Back to idle</td><td><code>confirm</code></td><td>Off</td><td class="feels">A single note drifting down, quiet again</td></tr>
       </tbody>
     </table>
-    <p class="note"><code>error</code> and <code>failure</code> are built in too, off by default — wire them up in config if you like.</p>
   </div>
 </section>
 
 <section id="config">
   <div class="wrap">
     <h2>Configuration</h2>
-    <p class="lead">Manage enablement, volume, and every sound event in <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. Disabling notification sounds mutes everything. These are the profile's regular runtime parameters:</p>
+    <p class="lead">All visible controls live in <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. Enable notification sounds is the only global switch, and turning it off mutes everything; there is no corner status dot or floating settings panel. These are the profile's regular runtime parameters:</p>
     <table class="tbl">
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
@@ -323,6 +316,10 @@
     <details>
       <summary>Where do I configure notification sounds and update the plugin?</summary>
       <p>Open <strong>Settings → Plugins → Plugin configuration → Bell notifications</strong>. It manages enablement, volume, event toggles, custom sounds, and updates for npm-installed versions.</p>
+    </details>
+    <details>
+      <summary>Why is there no corner status dot or floating panel?</summary>
+      <p>They were removed to keep the conversation workspace unobstructed. Enablement, volume, event toggles, version, and updates are all consolidated in the plugin configuration card.</p>
     </details>
     <details>
       <summary>Where are custom sounds stored?</summary>
@@ -387,7 +384,7 @@
     }, (total + 0.1) * 1000)
   }
 
-  var names = ['startup', 'click', 'notify', 'tick', 'drop', 'beep', 'rise', 'alert', 'success', 'confirm', 'error', 'failure']
+  var names = ['startup', 'click', 'notify', 'tick', 'drop', 'beep', 'rise', 'alert', 'success', 'confirm']
   var html = ''
   for (var i = 0; i < names.length; i++) {
     var id = names[i]

@@ -6,7 +6,7 @@
   <title>dsh-bell-notify 🔔 — DeepSeek Harness 生命周期铃声插件 | Web Audio 实时合成</title>
 
   <!-- SEO -->
-  <meta name="description" content="dsh-bell-notify 是 DeepSeek Harness（dsh）的社区插件：为 Agent 生命周期事件提供可自定义的铃声通知。零音频文件，全部铃声由 Web Audio 实时合成，支持替换成自己的声音。MIT 开源。" />
+  <meta name="description" content="dsh-bell-notify 是 DeepSeek Harness（dsh）的社区插件：为关键 Agent 生命周期事件提供可配置、少打扰的声音提示。零音频文件，Web Audio 实时合成，支持自定义铃声。MIT 开源。" />
   <meta name="keywords" content="dsh-bell-notify, DeepSeek Harness, dsh plugin, 铃声, 通知音效, Web Audio, 生命周期, cordis, deepseek 插件" />
   <meta name="author" content="Laplace-bit" />
   <meta name="robots" content="index, follow" />
@@ -16,7 +16,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="dsh-bell-notify" />
   <meta property="og:title" content="dsh-bell-notify 🔔 — DeepSeek Harness 生命周期铃声插件" />
-  <meta property="og:description" content="可自定义的 Agent 生命周期铃声通知：启动、思考、工具调用、等待确认，每个环节都有一声提示音，可换成自己的音频。零音频文件，Web Audio 实时合成，MIT 开源。" />
+  <meta property="og:description" content="为关键 Agent 生命周期事件提供可配置的声音提示：默认只开启开始执行、等待确认和本轮完成，支持自定义铃声。零音频文件，Web Audio 实时合成，MIT 开源。" />
   <meta property="og:url" content="https://laplace-bit.github.io/dsh-bell-notify/" />
   <meta property="og:locale" content="zh_CN" />
   <meta property="og:locale:alternate" content="en_US" />
@@ -24,7 +24,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="dsh-bell-notify 🔔 — DeepSeek Harness 生命周期铃声插件" />
-  <meta name="twitter:description" content="可自定义的 Agent 生命周期铃声通知：每个环节都有一声提示音，可换成自己的音频。Web Audio 实时合成，零音频文件，MIT 开源。" />
+  <meta name="twitter:description" content="为关键 Agent 生命周期事件提供可配置、少打扰的声音提示。默认只开启三项，支持自定义铃声；Web Audio 实时合成，零音频文件，MIT 开源。" />
 
   <!-- Structured data -->
   <script type="application/ld+json">
@@ -58,10 +58,6 @@
       --muted: #9aa3af;
       --gold: #f5b942;
       --orange: #e8893a;
-      --red: #e2584a;
-      --green: #5fc477;
-      --blue: #5aa2e6;
-      --yellow: #e6c35a;
       --radius: 12px;
       --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
     }
@@ -134,15 +130,6 @@
     section h2::before { content: ""; width: 4px; height: 22px; border-radius: 2px; background: linear-gradient(var(--gold), var(--orange)); display: inline-block; }
     .lead { color: var(--muted); margin: 0 0 24px; }
 
-    /* Screenshot */
-    .shot-box { text-align: center; }
-    .shot-box img {
-      width: 100%; height: auto; max-width: 900px; border-radius: 14px;
-      border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-      margin-bottom: 12px;
-    }
-    .shot-caption { color: var(--muted); font-size: 13px; }
-
     /* Feature grid */
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
     .card {
@@ -213,6 +200,8 @@
       header.hero { padding: 40px 0 28px; }
       section { padding: 32px 0; }
       h1 { font-size: 27px; }
+      table.events { display: block; overflow-x: auto; }
+      table.events .feels { min-width: 180px; }
     }
   </style>
 </head>
@@ -229,9 +218,9 @@
   <div class="wrap">
     <span class="kicker">DeepSeek Harness 社区插件 · MIT 开源</span>
     <h1>给 Agent 配一套<span class="bell">可自定义的铃声通知</span></h1>
-    <p class="sub">每个生命周期环节都有专属铃声。不用任何音频文件——所有铃声都是 <b style="color:var(--text)">Web Audio 实时合成</b>的，还能在插件配置中换成自己的声音。</p>
+    <p class="sub">为关键生命周期节点提供可配置、少打扰的声音提示。不用任何音频文件——所有铃声都由 <b style="color:var(--text)">Web Audio 实时合成</b>，并可在插件配置中换成自己的声音。</p>
     <div class="cta">
-      <a class="btn primary" href="#demo">▶ 在线试听所有铃声</a>
+      <a class="btn primary" href="#demo">▶ 在线试听内置提示音</a>
       <a class="btn" href="#install">安装插件</a>
       <a class="btn" href="https://github.com/Laplace-bit/dsh-bell-notify" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
     </div>
@@ -241,19 +230,19 @@
 <section id="features">
   <div class="wrap">
     <h2>它能干什么</h2>
-    <p class="lead">一个小插件，两类控制：专属铃声与自定义音源。</p>
+    <p class="lead">一个轻量插件，围绕高价值节点提醒你，并允许按工作习惯细调。</p>
     <div class="grid">
       <div class="card">
-        <h3>🎵 每个环节都有专属铃声</h3>
-        <p>启动、思考、工具调用、命令完成、等待确认……每一个事件的声音都不一样，用耳朵就能分辨进度。</p>
+        <h3>🎵 十个事件，默认只开三项</h3>
+        <p>开始执行、等待确认和本轮完成默认开启；其余过程事件按需打开，让提示音传达进度而不制造噪声。</p>
       </div>
       <div class="card">
         <h3>🎛️ 每个声音都能自己换</h3>
-        <p>在设置的插件配置中试听、上传自己的音频文件、一键还原。换上的声音会记住，刷新不丢。</p>
+        <p>在设置的插件配置中试听、上传自己的音频文件、一键还原。换上的声音会记住，刷新不丢，也不会占用工作区。</p>
       </div>
       <div class="card">
         <h3>🎼 声音是「活」的</h3>
-        <p>全部由 Web Audio 实时合成：零音频资源、包体极轻、可离线用、可随时调音高节奏。</p>
+        <p>全部由 Web Audio 实时合成：零音频资源、包体极轻、可离线用。需要不同声音时，直接替换对应事件的音频。</p>
       </div>
     </div>
 
@@ -262,10 +251,10 @@
 
 <section id="demo" style="border-top:1px solid var(--border)">
   <div class="wrap">
-    <h2>🎧 在线试听全部铃声</h2>
-    <p class="lead">与插件运行时使用同一份配方与渲染逻辑（Web Audio 振荡器实时合成，无音频文件）。音量 0.7，即默认 masterVolume。</p>
+    <h2>🎧 在线试听十个可配置事件</h2>
+    <p class="lead">这里使用当前版本的内置配方与 Web Audio 渲染方式；不加载音频文件。试听音量为 0.7，即默认 masterVolume。</p>
     <div class="demo-tip">🔊 点一下任意铃声即可解锁声音（浏览器自动播放策略）。</div>
-    <div class="ring-grid" id="rings" data-recipes='{"startup":{"desc":"会话启动 · 300→900Hz 上行扫频","n":[{"w":"sine","f":300,"t":900,"s":0,"d":0.35,"g":0.6}]},"click":{"desc":"开始执行 · 1200Hz 短促单击","n":[{"w":"sine","f":1200,"s":0,"d":0.045,"g":0.5}]},"notify":{"desc":"开始思考 · 392Hz 柔和单音","n":[{"w":"sine","f":392,"s":0,"d":0.28,"g":0.45}]},"tick":{"desc":"工具调用 · 金属双 tick","n":[{"w":"triangle","f":1600,"s":0,"d":0.03,"g":0.4},{"w":"triangle","f":2000,"s":0.045,"d":0.03,"g":0.4}]},"drop":{"desc":"工具完成 · 低音下滑","n":[{"w":"sine","f":440,"t":330,"s":0,"d":0.18,"g":0.5}]},"beep":{"desc":"命令执行 · 短方波 beep","n":[{"w":"square","f":520,"s":0,"d":0.07,"g":0.35}]},"rise":{"desc":"命令完成 · 上行双音","n":[{"w":"sine","f":520,"s":0,"d":0.08,"g":0.5},{"w":"sine","f":780,"s":0.09,"d":0.12,"g":0.5}]},"alert":{"desc":"等待确认 · 高频三连","n":[{"w":"sine","f":880,"s":0,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.12,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.24,"d":0.08,"g":0.6}]},"success":{"desc":"本轮完成 · C-E-G 大三和弦","n":[{"w":"sine","f":523.25,"s":0,"d":0.11,"g":0.6},{"w":"sine","f":659.25,"s":0.11,"d":0.11,"g":0.6},{"w":"sine","f":783.99,"s":0.22,"d":0.11,"g":0.6}]},"confirm":{"desc":"回到空闲 · 单音下滑","n":[{"w":"sine","f":660,"t":440,"s":0,"d":0.22,"g":0.5}]},"error":{"desc":"错误（保留音）· 150Hz 方波","n":[{"w":"square","f":150,"s":0,"d":0.4,"g":0.5}]},"failure":{"desc":"失败（保留音）· 下滑音","n":[{"w":"sine","f":400,"t":200,"s":0,"d":0.35,"g":0.6}]}}'></div>
+    <div class="ring-grid" id="rings" data-recipes='{"startup":{"desc":"会话启动 · 300→900Hz 上行扫频","n":[{"w":"sine","f":300,"t":900,"s":0,"d":0.35,"g":0.6}]},"click":{"desc":"开始执行 · 1200Hz 短促单击","n":[{"w":"sine","f":1200,"s":0,"d":0.045,"g":0.5}]},"notify":{"desc":"开始思考 · 392Hz 柔和单音","n":[{"w":"sine","f":392,"s":0,"d":0.28,"g":0.45}]},"tick":{"desc":"工具调用 · 金属双 tick","n":[{"w":"triangle","f":1600,"s":0,"d":0.03,"g":0.4},{"w":"triangle","f":2000,"s":0.045,"d":0.03,"g":0.4}]},"drop":{"desc":"工具完成 · 低音下滑","n":[{"w":"sine","f":440,"t":330,"s":0,"d":0.18,"g":0.5}]},"beep":{"desc":"命令执行 · 短方波 beep","n":[{"w":"square","f":520,"s":0,"d":0.07,"g":0.35}]},"rise":{"desc":"命令完成 · 上行双音","n":[{"w":"sine","f":520,"s":0,"d":0.08,"g":0.5},{"w":"sine","f":780,"s":0.09,"d":0.12,"g":0.5}]},"alert":{"desc":"等待确认 · 高频三连","n":[{"w":"sine","f":880,"s":0,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.12,"d":0.08,"g":0.6},{"w":"sine","f":880,"s":0.24,"d":0.08,"g":0.6}]},"success":{"desc":"本轮完成 · C-E-G 大三和弦","n":[{"w":"sine","f":523.25,"s":0,"d":0.11,"g":0.6},{"w":"sine","f":659.25,"s":0.11,"d":0.11,"g":0.6},{"w":"sine","f":783.99,"s":0.22,"d":0.11,"g":0.6}]},"confirm":{"desc":"回到空闲 · 单音下滑","n":[{"w":"sine","f":660,"t":440,"s":0,"d":0.22,"g":0.5}]}}'></div>
     <p class="demo-status" id="demo-status" role="status" aria-live="polite"></p>
   </div>
 </section>
@@ -287,31 +276,30 @@
 
 <section id="events">
   <div class="wrap">
-    <h2>🎵 每个环节的默认铃声</h2>
-    <p class="lead">Agent 的一举一动都会「响一声」，而且每个环节的声音都不一样。全部可在线试听（见上）。</p>
+    <h2>🎵 十个可配置事件</h2>
+    <p class="lead">每个事件都有内置铃声和独立开关；首次安装只开启需要介入或完成里程碑的三项。上方可试听全部十个可配置配方。</p>
     <table class="events">
-      <thead><tr><th>环节</th><th>默认铃声</th><th>听起来像</th></tr></thead>
+      <thead><tr><th>环节</th><th>默认铃声</th><th>首次状态</th><th>听起来像</th></tr></thead>
       <tbody>
-        <tr><td>会话启动</td><td><code>startup</code></td><td class="feels">一声轻柔的上扬，像开机</td></tr>
-        <tr><td>开始执行</td><td><code>click</code></td><td class="feels">短促的一声「叮」，出发了</td></tr>
-        <tr><td>开始思考</td><td><code>notify</code></td><td class="feels">温柔的单音，进入状态</td></tr>
-        <tr><td>工具调用</td><td><code>tick</code></td><td class="feels">清脆的「哒哒」两声，金属质感</td></tr>
-        <tr><td>工具完成</td><td><code>drop</code></td><td class="feels">低低地落定，收尾</td></tr>
-        <tr><td>命令执行</td><td><code>beep</code></td><td class="feels">一声短促的哔，有终端味</td></tr>
-        <tr><td>命令完成</td><td><code>rise</code></td><td class="feels">上扬的双音，搞定</td></tr>
-        <tr><td>等待确认</td><td><code>alert</code></td><td class="feels">高频三连，叫你看一眼</td></tr>
-        <tr><td>本轮完成</td><td><code>success</code></td><td class="feels">上行大三和弦，成就感拉满</td></tr>
-        <tr><td>回到空闲</td><td><code>confirm</code></td><td class="feels">单音缓缓落下，安静了</td></tr>
+        <tr><td>会话启动</td><td><code>startup</code></td><td>关闭</td><td class="feels">一声轻柔的上扬，像开机</td></tr>
+        <tr><td>开始执行</td><td><code>click</code></td><td>开启</td><td class="feels">短促的一声「叮」，出发了</td></tr>
+        <tr><td>开始思考</td><td><code>notify</code></td><td>关闭</td><td class="feels">温柔的单音，进入状态</td></tr>
+        <tr><td>工具调用</td><td><code>tick</code></td><td>关闭</td><td class="feels">清脆的「哒哒」两声，金属质感</td></tr>
+        <tr><td>工具完成</td><td><code>drop</code></td><td>关闭</td><td class="feels">低低地落定，收尾</td></tr>
+        <tr><td>命令执行</td><td><code>beep</code></td><td>关闭</td><td class="feels">一声短促的哔，有终端味</td></tr>
+        <tr><td>命令完成</td><td><code>rise</code></td><td>关闭</td><td class="feels">上扬的双音，搞定</td></tr>
+        <tr><td>等待确认</td><td><code>alert</code></td><td>开启</td><td class="feels">高频三连，叫你看一眼</td></tr>
+        <tr><td>本轮完成</td><td><code>success</code></td><td>开启</td><td class="feels">上行大三和弦，成就感拉满</td></tr>
+        <tr><td>回到空闲</td><td><code>confirm</code></td><td>关闭</td><td class="feels">单音缓缓落下，安静了</td></tr>
       </tbody>
     </table>
-    <p class="note"><code>error</code> / <code>failure</code> 两个音效也内置好了，默认没启用，可在配置里按需接上。</p>
   </div>
 </section>
 
 <section id="config">
   <div class="wrap">
     <h2>配置</h2>
-    <p class="lead">启用状态、音量和每个铃声事件在 <strong>设置 → 插件 → 插件配置 → 铃声通知</strong> 中管理；关闭“启用提示音”即完全静音。下面是 profile 的常规运行参数：</p>
+    <p class="lead">所有可见控制都在 <strong>设置 → 插件 → 插件配置 → 铃声通知</strong>。“启用提示音”是唯一总开关，关闭即完全静音；不再提供右下角状态点或悬浮设置面板。下面是 profile 的常规运行参数：</p>
     <table class="tbl">
       <thead><tr><th>选项</th><th>默认</th><th>说明</th></tr></thead>
       <tbody>
@@ -339,6 +327,10 @@
     <details>
       <summary>在哪里配置提示音和更新插件？</summary>
       <p>在 Web 设置的<strong>插件 → 插件配置 → 铃声通知</strong>中。这里可以管理启用状态、音量、事件开关、自定义铃声，以及 npm 安装的更新。</p>
+    </details>
+    <details>
+      <summary>为什么没有右下角状态点或悬浮面板？</summary>
+      <p>它们已移除，避免遮挡会话工作区。启用状态、音量、事件开关、版本和更新都集中在插件配置卡中。</p>
     </details>
     <details>
       <summary>自定义的声音存在哪？</summary>
@@ -403,7 +395,7 @@
     }, (total + 0.1) * 1000)
   }
 
-  var names = ['startup', 'click', 'notify', 'tick', 'drop', 'beep', 'rise', 'alert', 'success', 'confirm', 'error', 'failure']
+  var names = ['startup', 'click', 'notify', 'tick', 'drop', 'beep', 'rise', 'alert', 'success', 'confirm']
   var html = ''
   for (var i = 0; i < names.length; i++) {
     var id = names[i]
