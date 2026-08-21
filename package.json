@@ -43,7 +43,8 @@
     "cordis.patch.yml",
     "preview.html",
     "README.md",
-    "README.en.md"
+    "README.en.md",
+    "CHANGELOG.md"
   ],
   "dsh": {
     "bundle": {
