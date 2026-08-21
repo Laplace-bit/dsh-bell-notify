@@ -39,7 +39,7 @@ import { BellNotifyCardController } from './bell-card-controller.ts'
 import { createBellSettingsApi } from './bell-settings-api.ts'
 import { BellSoundControlsCell, createBellSoundControls } from './bell-sound-controls.ts'
 import { NS as SETTINGS_NS, en, zh } from './locales.ts'
-import { bellSettingsDefaults, type BellSettings } from '../settings.ts'
+import { BELL_SETTINGS_NS, bellSettingsDefaults, type BellSettings } from '../settings.ts'
 
 /** The card stays available even while the optional sessions service reconnects. */
 export const inject: string[] = []
@@ -151,13 +151,21 @@ export function apply(ctx: ClientContext): void {
     const detachPreferences = preferences.attach(card)
     card.start()
     settingsCtx.effect(() => settingsCtx.locale.register(SETTINGS_NS, { zh, en }), 'dsh-bell-notify: settings dictionaries')
-    settingsCtx.slots.inject('settings.plugin.item', () => settingsCtx.slots.register({
+    // The plugin configuration page (dsh-client-ui-settings-plugins, rc.7+)
+    // enumerates settings.plugin.item inside its own settingsScope service and
+    // only lists cards whose key matches a settings namespace the Host serves.
+    // Register through that scope and key by the Host settings namespace
+    // (BELL_SETTINGS_NS) rather than the i18n dictionary namespace; the nested
+    // inject keeps hosts without the service card-free instead of unmounted.
+    const settingsScopeCtx = settingsCtx as unknown as {
+      inject(services: string[], callback: (scoped: typeof settingsCtx) => unknown): unknown
+    }
+    settingsScopeCtx.inject(['settingsScope'], (scoped) => scoped.slots.inject('settings.plugin.item', () => scoped.slots.register({
       name: 'settings.plugin.item',
-      id: 'bell-notify',
-      order: 40,
+      key: BELL_SETTINGS_NS,
       locale: SETTINGS_NS,
       inject: () => card.inject(),
-    }, BellNotifyCard))
+    }, BellNotifyCard)))
     return () => {
       card.stop()
       detachPreferences()

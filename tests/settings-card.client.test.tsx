@@ -46,7 +46,7 @@ function sessions() {
 function declareCardSlot(slots: SlotRegistry): () => void {
   return slots.register({
     name: 'root',
-    children: { 'settings.plugin.item': { kind: 'list', scope: 'root' } },
+    children: { 'settings.plugin.item': { kind: 'keyed', scope: 'root' } },
   } as never, () => null)
 }
 
@@ -93,6 +93,7 @@ describe('bell-notify settings card', () => {
       ctx.provide('locale', { register: () => () => {} } as never)
       ctx.provide('connection', { rpc: { call: vi.fn(() => Promise.resolve({ ok: true, value: developmentView })) } } as never)
       ctx.provide('sessions', sessions() as never)
+      ctx.provide('settingsScope', {} as never)
       declareCardSlot(slots)
 
       await ctx.plugin({ inject: [...inject], apply }).await()
@@ -116,11 +117,12 @@ describe('bell-notify settings card', () => {
       ctx.provide('locale', { register: () => () => {} } as never)
       ctx.provide('connection', { rpc: { call: vi.fn(() => Promise.resolve({ ok: true, value: developmentView })) } } as never)
       ctx.provide('sessions', sessions() as never)
+      ctx.provide('settingsScope', {} as never)
       declareCardSlot(slots)
 
       await ctx.plugin({ inject: [...inject], apply }).await()
 
-      expect(slots.entries('settings.plugin.item').map(entry => entry.options.id)).toEqual(['bell-notify'])
+      expect(slots.entries('settings.plugin.item').map(entry => entry.options.key)).toEqual(['bell-notify'])
     } finally {
       warn.mockRestore()
       if (previous === undefined) delete boot[BELL_BOOT_GLOBAL]
@@ -150,13 +152,45 @@ describe('bell-notify settings card', () => {
     ctx.provide('locale', { register: () => () => {} } as never)
     ctx.provide('connection', { api: { settings: { describe: coreDescribe } }, rpc: { call } } as never)
     ctx.provide('sessions', sessions() as never)
+    ctx.provide('settingsScope', {} as never)
     declareCardSlot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
 
-    expect(slots.entries('settings.plugin.item').map(entry => entry.options.id)).toEqual(['bell-notify'])
+    expect(slots.entries('settings.plugin.item').map(entry => entry.options.key)).toEqual(['bell-notify'])
     expect(call).toHaveBeenCalledWith(BELL_SETTINGS_RPC_CHANNEL, BELL_SETTINGS_RPC.read, {})
     expect(coreDescribe).not.toHaveBeenCalled()
+  })
+
+  it('registers the card keyed by the Host settings namespace', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SlotRegistry).await()
+    const slots = ctx.get('slots') as SlotRegistry
+    ctx.provide('locale', { register: () => () => {} } as never)
+    ctx.provide('connection', { rpc: { call: vi.fn(() => Promise.resolve({ ok: true, value: developmentView })) } } as never)
+    ctx.provide('sessions', sessions() as never)
+    ctx.provide('settingsScope', {} as never)
+    declareCardSlot(slots)
+
+    await ctx.plugin({ inject: [...inject], apply }).await()
+
+    // The configurable-plugins tab pairs cards with served namespaces through
+    // options.key — it must be the Host settings namespace, not the i18n NS.
+    expect(slots.entries('settings.plugin.item').map(entry => (entry.options as { key?: string }).key)).toEqual(['bell-notify'])
+  })
+
+  it('stays card-free on hosts without the settingsScope service', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SlotRegistry).await()
+    const slots = ctx.get('slots') as SlotRegistry
+    ctx.provide('locale', { register: () => () => {} } as never)
+    ctx.provide('connection', { rpc: { call: vi.fn(() => Promise.resolve({ ok: true, value: developmentView })) } } as never)
+    ctx.provide('sessions', sessions() as never)
+    declareCardSlot(slots)
+
+    await ctx.plugin({ inject: [...inject], apply }).await()
+
+    expect(slots.entries('settings.plugin.item')).toEqual([])
   })
 
   it('labels a linked installation as a development version and disables updates', async () => {
@@ -168,6 +202,7 @@ describe('bell-notify settings card', () => {
       rpc: { call: vi.fn(() => Promise.resolve({ ok: true, value: developmentView })) },
     } as never)
     ctx.provide('sessions', sessions() as never)
+    ctx.provide('settingsScope', {} as never)
     declareCardSlot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
     const face = cardFace(slots)
@@ -255,6 +290,7 @@ describe('bell-notify settings card', () => {
     ctx.provide('locale', { register: () => () => {} } as never)
     ctx.provide('connection', { rpc: { call } } as never)
     ctx.provide('sessions', sessions() as never)
+    ctx.provide('settingsScope', {} as never)
     declareCardSlot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
     const face = cardFace(slots)
@@ -279,6 +315,7 @@ describe('bell-notify settings card', () => {
     ctx.provide('locale', { register: () => () => {} } as never)
     ctx.provide('connection', { rpc: { call: vi.fn(() => Promise.resolve({ ok: true, value: developmentView })) } } as never)
     ctx.provide('sessions', sessions() as never)
+    ctx.provide('settingsScope', {} as never)
     declareCardSlot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
     const face = cardFace(slots)
