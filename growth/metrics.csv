@@ -1,0 +1,7 @@
+date,channel,metric,value,source_or_note
+2026-08-21,GitHub,stars,2,public repository API
+2026-08-21,GitHub,forks,1,public repository API
+2026-08-21,GitHub,open_issues_before_merge,2,issues API; PR #2 merged today
+2026-08-21,npm,latest_version,0.1.1,npm registry
+2026-08-21,npm,published_versions,2,npm registry
+2026-08-21,GitHub,upstream_deepseek_harness_stars,176201,public repository API

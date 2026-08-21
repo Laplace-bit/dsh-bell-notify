@@ -2,11 +2,19 @@
 
 [English](./README.en.md) · [中文](./README.md)
 
+[![npm version](https://img.shields.io/npm/v/dsh-bell-notify?logo=npm)](https://www.npmjs.com/package/dsh-bell-notify) [![Pages](https://github.com/Laplace-bit/dsh-bell-notify/actions/workflows/pages.yml/badge.svg)](https://github.com/Laplace-bit/dsh-bell-notify/actions) [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![Hear the bells](https://img.shields.io/badge/hear%20the%20bells-Web%20Audio-f5b942)](https://laplace-bit.github.io/dsh-bell-notify/en.html)
+
 **dsh-bell-notify** is a community plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`). It turns key Agent lifecycle events into configurable sound cues, so you can follow progress without watching the page.
 
 Every bell is synthesized in real time with the Web Audio API, with no audio assets in the package. Controls live in **Settings → Plugins → Plugin configuration → Bell notifications**; there is no floating workspace panel or corner status dot competing with the conversation UI.
 
 > Not part of the official DeepSeek distribution. An MIT-licensed community plugin.
+
+## In one sentence
+
+If you run DeepSeek Harness (`dsh`) tasks in the background and want a low-noise cue when the Agent needs you or a turn finishes, install this plugin. It is for long-running tasks, parallel work, and developers who do not want to watch the browser continuously; it uses no external service and never uploads audio.
+
+This is not a desktop notification bridge or a general browser notification library: sounds play for Agent lifecycle events in a DSH Web session.
 
 ## What it does
 

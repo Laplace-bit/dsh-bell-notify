@@ -1,0 +1,46 @@
+# dsh-bell-notify
+
+> dsh-bell-notify is an MIT-licensed community plugin for DeepSeek Harness (dsh). It plays configurable, low-noise Web Audio cues for Agent lifecycle events.
+
+## Canonical links
+
+- Source: https://github.com/Laplace-bit/dsh-bell-notify
+- Website and live audio preview: https://laplace-bit.github.io/dsh-bell-notify/
+- English preview: https://laplace-bit.github.io/dsh-bell-notify/en.html
+- npm: https://www.npmjs.com/package/dsh-bell-notify
+- License: https://github.com/Laplace-bit/dsh-bell-notify/blob/main/LICENSE
+
+## What it does
+
+- Supports ten lifecycle events: session start, Agent start, thinking, tool call, tool done, command run, command done, waiting for input, turn complete, and back to idle.
+- Enables only Agent start, waiting for input, and turn complete on a new install; the other events are opt-in.
+- Synthesizes built-in tones at playback time with the Web Audio API. The package ships no audio assets and works offline.
+- Lets users preview, upload, and reset a sound per event from Settings -> Plugins -> Plugin configuration -> Bell notifications.
+- Stores custom sound bytes in browser IndexedDB and event mappings in localStorage. Audio is not uploaded.
+- Uses a queue, concurrency limit, and cooldown rules to keep repeated lifecycle events from becoming noisy.
+- Runs as a standard installable `dsh.bundle` npm plugin.
+
+## Install
+
+From a DeepSeek Harness source checkout:
+
+```sh
+pnpm dsh plugin --profile bell add dsh-bell-notify
+pnpm dsh --profile bell
+```
+
+If `dsh` is already on PATH, use `dsh plugin --profile bell add dsh-bell-notify`. After opening the Web UI, click once to satisfy browser autoplay policy.
+
+## Positioning
+
+dsh-bell-notify is for developers running long or parallel DSH tasks who need an audible cue when attention is required or a turn completes. It is distinct from OS toast bridges, TTS integrations, and one-event-only completion sound plugins: it is browser-local, configurable across ten lifecycle events, and uses synthesized tones by default.
+
+## Troubleshooting
+
+- No sound after install: click the page once, then preview a tone. Browsers suspend AudioContext until user interaction.
+- No settings card: check the DSH host version and update the npm package; the settings card requires the host's `settingsScope` plugin contract (rc.7+).
+- Custom audio is local to the current browser/profile and is not synced between machines.
+
+## For maintainers and agents
+
+The repository is TypeScript. Development commands are `pnpm install`, `pnpm build`, `pnpm test`, and `pnpm typecheck`. Contributions should include tests for scheduler, lifecycle rules, or settings behavior as appropriate.

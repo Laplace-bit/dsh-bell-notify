@@ -2,11 +2,19 @@
 
 [中文](./README.md) · [English](./README.en.md)
 
+[![npm version](https://img.shields.io/npm/v/dsh-bell-notify?logo=npm)](https://www.npmjs.com/package/dsh-bell-notify) [![Pages](https://github.com/Laplace-bit/dsh-bell-notify/actions/workflows/pages.yml/badge.svg)](https://github.com/Laplace-bit/dsh-bell-notify/actions) [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![在线试听](https://img.shields.io/badge/在线试听-Web%20Audio-f5b942)](https://laplace-bit.github.io/dsh-bell-notify/)
+
 **dsh-bell-notify** 是 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）的社区插件。它把关键 Agent 生命周期事件变成可配置的声音提示，让你在不盯着页面时仍能掌握进度。
 
 所有铃声均由 Web Audio 实时合成，不携带音频资源。配置集中在 **设置 → 插件 → 插件配置 → 铃声通知**：不再提供工作区悬浮面板或右下角状态点，避免占用会话界面。
 
 > 它不是 DeepSeek 官方发行的一部分，是一个 MIT 协议开源的社区插件。
+
+## 一句话定位
+
+如果你在后台运行 DeepSeek Harness（`dsh`）任务，想在需要介入或任务完成时收到低打扰提示，安装这个插件即可。它适合长任务、并行工作和不希望一直盯着浏览器的开发者；不需要外部服务，也不会上传音频。
+
+它不是桌面系统通知桥，也不是通用的浏览器通知库：声音只在 DSH Web 会话的 Agent 生命周期事件发生时播放。
 
 ## 它能干什么
 
