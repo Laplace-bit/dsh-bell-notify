@@ -85,3 +85,5 @@ Record weekly: GitHub stars, forks, watchers, npm weekly downloads, GitHub issue
 - 2026-08-21: updated GitHub description, homepage, topics, and enabled Discussions.
 - 2026-08-21: added `docs/llms.txt`, `docs/robots.txt`, and `docs/sitemap.xml`.
 - 2026-08-21: added bilingual README positioning and discovery badges.
+- 2026-08-21: opened [awesome-dsh-plugin PR #2533](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/2533) with bilingual factual entries.
+- 2026-08-21: opened [GitHub Discussion #3](https://github.com/Laplace-bit/dsh-bell-notify/discussions/3) to collect lifecycle-signal preferences without asking for Stars.

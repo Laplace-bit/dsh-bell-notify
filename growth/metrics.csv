@@ -5,3 +5,6 @@ date,channel,metric,value,source_or_note
 2026-08-21,npm,latest_version,0.1.1,npm registry
 2026-08-21,npm,published_versions,2,npm registry
 2026-08-21,GitHub,upstream_deepseek_harness_stars,176201,public repository API
+2026-08-21,GitHub,settings_card_fix_pr,merged,#2 merged as 6d2786c
+2026-08-21,GitHub,awesome_dsh_plugin_submission,open,https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/2533
+2026-08-21,GitHub,feedback_discussion,open,https://github.com/Laplace-bit/dsh-bell-notify/discussions/3
