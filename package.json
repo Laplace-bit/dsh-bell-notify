@@ -1,6 +1,6 @@
 {
   "name": "dsh-bell-notify",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Configurable, unobtrusive Agent lifecycle sound cues for DeepSeek Harness (dsh), synthesized with Web Audio.",
   "license": "MIT",
   "repository": {
