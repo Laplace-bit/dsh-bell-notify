@@ -87,6 +87,19 @@ Remove it:
 pnpm dsh plugin --profile bell remove dsh-bell-notify
 ```
 
+## Kernel Compatibility
+
+| DSH kernel | This plugin |
+|---|---|
+| 0.1.0-rc.5 - 0.1.0-rc.7 | ✅ all versions |
+| 0.1.1-rc.2 | ✅ all versions |
+| 0.1.2-alpha.1 - 0.1.2-alpha.3 | ✅ 0.1.2 (build with the 2026-09-01 compat fix); earlier releases fail to load on 0.1.2 |
+
+- ✅ = compatible. `0.1.2-alpha.3` is the current host kernel and has been verified live (built-artifact import + test suites); the remaining kernels are covered by the dual-kernel-compatible design (one build, one API surface).
+- **Kernel 0.1.2 removed the `settingsNamespace()` runtime helper** (on ≤ 0.1.1 it was a validating identity function; 0.1.2 keeps only the same-named type). This plugin does not statically import that symbol any more — it inlines its namespace constant locally and asserts it as the `SettingsNamespace` type, which works on both old and new kernels.
+- Since 0.1.2 the plugin no longer statically imports `settingsNamespace()`; earlier releases only work on kernels ≤ 0.1.1 — update to a build that contains the fix.
+- **Never statically import runtime symbols from `@deepseek-ai/*` packages.** The host CLI starts via `node --import tsx/esm`, and tsx applies the host `tsconfig` `paths` mapping, so a bare `@deepseek-ai/*` import from an external plugin may be redirected into the host's own sources — any host-side rename or removal then explodes at boot as a module instantiation error. Type-only imports (`import type`) are unaffected.
+
 ## Configuration
 
 Tune regular runtime parameters in the profile's `cordis.patch.yml` (Cordis validates and fills defaults at load):
