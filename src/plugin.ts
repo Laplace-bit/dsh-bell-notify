@@ -1,7 +1,7 @@
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-host-webserver'
 import type { ConnectionRpcHandler } from '@deepseek-ai/dsh-client-connection'
-import { settingsNamespace } from '@deepseek-ai/dsh-settings'
+import type { SettingsNamespace } from '@deepseek-ai/dsh-settings'
 import Schema from '@deepseek-ai/schemastery'
 import { DEFAULT_CONFIG, type BellConfig } from './config.ts'
 import { injectBootConfig } from './boot-config.ts'
@@ -91,8 +91,13 @@ export function apply(ctx: Context, config: Config): void {
     )
   })
   ctx.inject(['settings'], (settingsCtx) => {
+    // 0.1.2 kernels dropped the `settingsNamespace()` helper — a validating
+    // identity on ≤ 0.1.1 — and take the raw string, so the brand is
+    // reproduced locally instead of statically importing a removed symbol.
+    // 'bell-notify' matches the kernel's /^[a-z][a-z0-9-]*$/ pattern.
+    const settingsNamespace = BELL_SETTINGS_NS as SettingsNamespace
     const scope = settingsCtx.settings.register(
-      settingsNamespace(BELL_SETTINGS_NS),
+      settingsNamespace,
       settingsSchema(bellSettingsDefaults(config)),
       { applies: 'live' },
     )

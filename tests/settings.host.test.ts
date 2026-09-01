@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import type { ConnectionRpcHandler, ConnectionRpcHandlerOptions } from '@deepseek-ai/dsh-client-connection'
-import { SettingsProvider, settingsNamespace, type SettingsNamespace } from '@deepseek-ai/dsh-settings'
+import { SettingsProvider, type SettingsNamespace } from '@deepseek-ai/dsh-settings'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Config, apply } from '../src/plugin.ts'
 import { BELL_PACKAGE_NAME, BELL_PACKAGE_VERSION } from '../src/package-meta.ts'
@@ -126,7 +126,7 @@ describe('bell-notify host settings', () => {
       ok: true,
       value: { enabled: false, masterVolume: 0.35 },
     })
-    expect(ctx.settings.get(settingsNamespace(BELL_SETTINGS_NS))).toEqual({
+    expect(ctx.settings.get((BELL_SETTINGS_NS as SettingsNamespace))).toEqual({
       enabled: false, masterVolume: 0.35,
     })
 
@@ -155,7 +155,7 @@ describe('bell-notify host settings', () => {
       masterVolume: 0.7,
     }, signal())
     expect(updated).toMatchObject({ ok: true, value: { enabled: true, masterVolume: 0.7 } })
-    expect(ctx.settings.get(settingsNamespace(BELL_SETTINGS_NS))).toEqual({ enabled: true, masterVolume: 0.7 })
+    expect(ctx.settings.get((BELL_SETTINGS_NS as SettingsNamespace))).toEqual({ enabled: true, masterVolume: 0.7 })
     await fiber.dispose()
   })
 
@@ -245,7 +245,7 @@ describe('bell-notify host settings', () => {
     const fiber = ctx.plugin({ apply, Config })
     await fiber.await()
 
-    expect(ctx.settings.get(settingsNamespace(BELL_SETTINGS_NS))).toEqual(DEFAULT_BELL_SETTINGS)
+    expect(ctx.settings.get((BELL_SETTINGS_NS as SettingsNamespace))).toEqual(DEFAULT_BELL_SETTINGS)
     await fiber.dispose()
   })
 })

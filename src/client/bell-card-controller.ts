@@ -1,6 +1,6 @@
 /** Staged form state for the plugin-owned bell-notify settings RPC. */
 
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-runtime/client'
+import { createSnapshotStore, type SnapshotStore } from './clientStore.ts'
 import { DEFAULT_BELL_SETTINGS, type BellSettings } from '../settings.ts'
 import type { BellInstallationKind, BellSettingsView } from '../settings-api.ts'
 import type { BellSettingsApi } from './bell-settings-api.ts'

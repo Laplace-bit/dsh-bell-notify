@@ -1,6 +1,6 @@
 /** Runtime bridge for the card's browser-local sound controls. */
 
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-runtime/client'
+import { createSnapshotStore, type SnapshotStore } from './clientStore.ts'
 import { SoundAssignments, CUSTOM_SOUND_PREFIX, type SoundFileStorage } from '../core/sound-assignments.ts'
 import { RuleTable } from '../core/rules.ts'
 import { SoundScheduler } from '../core/scheduler.ts'

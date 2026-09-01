@@ -15,6 +15,11 @@ import { en } from '../src/client/locales.ts'
 import { BELL_BOOT_GLOBAL, DEFAULT_CONFIG } from '../src/config.ts'
 import { BELL_SETTINGS_RPC, BELL_SETTINGS_RPC_CHANNEL } from '../src/settings-api.ts'
 
+// The kernel-compat probe resolves its store specifier with a runtime require,
+// which neither vite aliasing nor vi.mock of the underlying specifier can
+// intercept — mock the probe module itself onto the same local facade.
+vi.mock('../src/client/clientStore.ts', async () => await import('./fixtures/dsh-client-runtime.ts'))
+
 afterEach(() => {
   cleanup()
   window.localStorage.clear()
