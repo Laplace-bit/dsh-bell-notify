@@ -7,6 +7,7 @@ import { DEFAULT_CONFIG, type BellConfig } from './config.ts'
 import { injectBootConfig } from './boot-config.ts'
 import { BELL_PACKAGE_NAME, BELL_PACKAGE_VERSION } from './package-meta.ts'
 import { inspectProfileInstallation, updateNpmProfilePackage } from './profile-installation.ts'
+import { registerSettingsChannel } from './settings-channel.ts'
 import { BELL_SETTINGS_RPC, BELL_SETTINGS_RPC_CHANNEL, type BellSettingsView } from './settings-api.ts'
 import { bellSettingsDefaults, BELL_SETTINGS_NS, type BellSettings } from './settings.ts'
 
@@ -163,10 +164,7 @@ export function apply(ctx: Context, config: Config): void {
         }
         return { ok: false, error: { code: 'internal', message: `unknown bell-notify endpoint ${JSON.stringify(endpoint)}`, details: {} } }
       }
-      connectionCtx.effect(
-        () => connectionCtx.connection.rpc.handle(BELL_SETTINGS_RPC_CHANNEL, handler, { authority: 'loopback' }),
-        'dsh-bell-notify: settings RPC',
-      )
+      registerSettingsChannel(connectionCtx, BELL_SETTINGS_RPC_CHANNEL, handler)
     })
   })
 }
